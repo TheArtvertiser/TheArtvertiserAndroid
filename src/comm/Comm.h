@@ -9,27 +9,30 @@
 #define COMM_H_
 
 #include "ofxHttpUtils.h"
+#include "Artvert.h"
 
-class Comm {
+class Comm: public ofThread {
 public:
 	Comm(string url="");
 	virtual ~Comm();
 
 	void setURL(string url);
-	void update();
 
-	void sendAdvert(string filename);
-	void newResponse(ofxHttpResponse & response);
+	void start();
+	void stop();
+	void threadedFunction();
 
-	ofEvent<string> gotAnalysisE;
+	void sendAdvert(const Artvert & artvert);
+
+	ofEvent<const Artvert> gotAnalysisE;
 
 private:
+	bool checkUploaded(Artvert & artvert);
+	void newResponse(ofxHttpResponse & response);
+	ofxHttpResponse postAdvert(const Artvert & artvert);
+
 	ofxHttpUtils httpClient;
 	string url;
-	string file;
-	int lastTime;
-	bool waitingForAnalysis,analysisReady,analysisRequested;
-	bool gotTracker,gotDetector;
 };
 
 #endif /* COMM_H_ */

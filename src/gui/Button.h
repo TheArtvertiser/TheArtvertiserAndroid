@@ -26,6 +26,8 @@ public:
 
 	void update();
 	void draw();
+	void draw(float x, float y);
+	void draw(ofRectangle & rect);
 
 	void mousePressed(ofMouseEventArgs & mouse);
 	void mouseDragged(ofMouseEventArgs & mouse);

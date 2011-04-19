@@ -29,6 +29,14 @@ void Button::update(){
 }
 
 void Button::draw(){
+	draw(rect);
+}
+
+void Button::draw(float x, float y){
+	draw(rect+ofPoint(x,y));
+}
+
+void Button::draw(ofRectangle & rect){
 	ofPushStyle();
 	ofSetColor(255,255,255);
 	if(icon.bAllocated()){

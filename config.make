@@ -10,7 +10,8 @@ OF_ROOT = ../../..
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = -Isrc/ferns_demo-1.1 -Isrc/FAST -Isrc/gui -Isrc/cv -Isrc/app -Isrc/ofxHttpUtils/src -Isrc/comm
+USER_CFLAGS = -Isrc/comm -Isrc/gui -Isrc/app -Isrc/ofxHttpUtils/src 
+USER_CFLAGS += -I../artvertiserCommon -I../artvertiserCommon/ferns_demo-1.1 -I../artvertiserCommon/FAST -I../artvertiserCommon/persistance -I../artvertiserCommon/cv
 
 
 # USER_LDFLAGS allows to pass custom flags to the linker
@@ -31,3 +32,10 @@ USER_LIBS =
 LINUX_COMPILER_OPTIMIZATION = -march=native -mtune=native -Os
 
 ANDROID_COMPILER_OPTIMIZATION = -Os
+
+
+# you shouldn't need to change this for usual OF apps, it allows to include code from other directories
+# useful if you need to share a folder with code between 2 apps. The makefile will search recursively
+# you can only set 1 path here
+
+USER_SOURCE_DIR = ../artvertiserCommon

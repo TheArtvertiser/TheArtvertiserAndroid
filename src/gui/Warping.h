@@ -30,10 +30,11 @@ namespace gui{
 		void mouseReleased(ofMouseEventArgs & mouse);
 		void mouseMoved(ofMouseEventArgs & mouse){}
 
-		const vector<ofPoint> & getQuad();
+		vector<ofPoint> getQuad();
 
 	private:
 		vector<ofPoint> quad;
+		ofPoint offset;
 		float minDistance;
 		int selectedPoint;
 	};

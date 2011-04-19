@@ -8,44 +8,36 @@
 #include "TakeAPhoto.h"
 
 #include "ofAppRunner.h"
+#include "ofGraphics.h"
 
 TakeAPhoto::TakeAPhoto()
 :video(NULL)
 ,state(Init)
-,yesCenter(180,190,128,100)
-,noCenter(340,190,100,104)
-,borderButton(680,200,56,42)
-,photoButton(borderButton)
-,yesButton(yesCenter)
-,noButton(noCenter)
 ,pixelsCopied(false)
 {
 
 }
 
-void TakeAPhoto::setup(ofVideoGrabber & _video){
+void TakeAPhoto::setup(ofBaseVideo & _video){
 	video = &_video;
 
 	quad.resize(4);
 	quad[0].set(20,20);
-	quad[1].set(600,20);
-	quad[2].set(600,440);
-	quad[3].set(20,440);
+	quad[1].set(620,20);
+	quad[2].set(620,460);
+	quad[3].set(20,460);
 
-	warp.setMinDistance(ofGetWidth()*ofGetHeight()*.0005);
-	warp.setInitialQuad(quad);
+	warp.setMinDistance(ofGetWidth()*ofGetHeight()*.00015);
+	warp.setInitialQuad(quad,ofPoint(ofGetWidth()*0.5-video->getWidth()*0.5,ofGetHeight()*0.5-video->getHeight()*0.5));
 
-	ofImage photoIcon;
 	photoIcon.loadImage("icons/camera.png");
 	photoButton.setIcon(photoIcon);
 	ofAddListener(photoButton.pressedE,this,&TakeAPhoto::takePhoto);
 
-	ofImage yesIcon;
 	yesIcon.loadImage("icons/yes.png");
 	yesButton.setIcon(yesIcon);
 	ofAddListener(yesButton.pressedE,this,&TakeAPhoto::yesPressed);
 
-	ofImage noIcon;
 	noIcon.loadImage("icons/no.png");
 	noButton.setIcon(noIcon);
 	ofAddListener(noButton.pressedE,this,&TakeAPhoto::noPressed);
@@ -57,13 +49,48 @@ void TakeAPhoto::setup(ofVideoGrabber & _video){
 	photoButton.enableEvents();
 
 #ifdef TARGET_ANDROID
-	ofxAndroidVideoGrabber * grabber = (ofxAndroidVideoGrabber*)((ofVideoGrabber*)video)->getGrabber();
+	ofxAndroidVideoGrabber * grabber = dynamic_cast<ofxAndroidVideoGrabber*>(video);
 	ofAddListener(grabber->newFrameE,this,&TakeAPhoto::newFrame);
 #elif defined (TARGET_LINUX)
-	ofGstVideoGrabber * grabber =(ofGstVideoGrabber*) ((ofVideoGrabber*)video)->getGrabber();
+	ofGstVideoGrabber * grabber = dynamic_cast<ofGstVideoGrabber*>(video);
 	ofGstVideoUtils * videoUtils = grabber->getGstVideoUtils();
 	ofAddListener(videoUtils->bufferEvent,this,&TakeAPhoto::newFrame);
 #endif
+
+	videoTex.allocate(video->getWidth(),video->getHeight(),GL_RGB);
+
+	photo.setAnchorPercent(0.5,0.5);
+	videoTex.setAnchorPercent(0.5,0.5);
+
+
+	photoButton.setRect(borderButton);
+	yesButton.setRect(yesCenter);
+	noButton.setRect(noCenter);
+
+	ofAddListener(ofEvents.windowResized,this,&TakeAPhoto::windowResized);
+}
+
+void TakeAPhoto::windowResized(ofResizeEventArgs & window){
+	int centerLX = window.width*0.5 - yesIcon.getWidth() - yesIcon.getWidth()*0.4;
+	int centerRX = window.width*0.5 + yesIcon.getWidth()*0.4;
+	int borderX = window.width*0.5 + video->getWidth()*0.5 + yesIcon.getWidth()*0.1;
+
+	yesCenter.set(centerLX,190,128,100);
+	noCenter.set(centerRX,190,100,104);
+	borderButton.set(borderX,200,56,35);
+
+	photoButton.setRect(borderButton);
+	yesButton.setRect(yesCenter);
+	noButton.setRect(noCenter);
+
+	quad.resize(4);
+	quad[0].set(20,20);
+	quad[1].set(620,20);
+	quad[2].set(620,460);
+	quad[3].set(20,460);
+
+	warp.setMinDistance(ofGetWidth()*ofGetHeight()*.00015);
+	warp.setInitialQuad(quad,ofPoint(ofGetWidth()*0.5-video->getWidth()*0.5,ofGetHeight()*0.5-video->getHeight()*0.5));
 
 }
 
@@ -147,23 +174,34 @@ void TakeAPhoto::update(){
 		photo = photoPixels;
 		pixelsCopied = false;
 		updateState(UpdatedImage);
+	}else if(state == Init){
+		if(video->isFrameNew()){
+			cout << "new frame" << endl;
+			videoTex.loadData(video->getPixelsRef());
+		}
 	}
 }
 
 void TakeAPhoto::draw(){
+	ofPushStyle();
 	if(state==PhotoTaken){
-		photo.draw(0,0);
+		ofSetColor(255);
+		photo.draw(ofGetWidth()*0.5,ofGetHeight()*0.5);
+		ofSetColor(40);
 		yesButton.draw();
 		noButton.draw();
 	}else if(state==SelectingQuad){
-		photo.draw(0,0);
+		ofSetColor(255);
+		photo.draw(ofGetWidth()*0.5,ofGetHeight()*0.5);
 		warp.draw();
+		ofSetColor(40);
 		yesButton.draw();
 	}else{
-		if(video) video->draw(0,0);
+		ofSetColor(255);
+		if(video) videoTex.draw(ofGetWidth()*0.5,ofGetHeight()*0.5);
 		photoButton.draw();
 	}
-
+	ofPopStyle();
 }
 
 TakeAPhoto::State TakeAPhoto::getState(){

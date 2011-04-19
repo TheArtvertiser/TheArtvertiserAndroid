@@ -17,10 +17,11 @@ class TakeAPhoto {
 public:
 	TakeAPhoto();
 
-	void setup(ofVideoGrabber & _video);
+	void setup(ofBaseVideo & _video);
 	void update();
 	void draw();
 
+	void windowResized(ofResizeEventArgs & window);
 
 	enum State{
 		Init,
@@ -53,7 +54,9 @@ private:
 
 	void updateState(Transition transition);
 
-	ofVideoGrabber * video;
+	ofBaseVideo * video;
+	ofTexture videoTex;
+
 	ofPixels photoPixels;
 	ofImage photo;
 
@@ -62,6 +65,9 @@ private:
 	vector<ofPoint> quad;
 	ofRectangle yesCenter,noCenter,borderButton;
 	gui::Button photoButton, yesButton, noButton;
+	ofImage photoIcon;
+	ofImage yesIcon;
+	ofImage noIcon;
 
 
 	bool pixelsCopied;

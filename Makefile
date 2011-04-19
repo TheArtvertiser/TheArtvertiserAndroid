@@ -84,6 +84,12 @@ SED_EXCLUDE_FROM_SRC = $(shell echo  $(EXCLUDE_FROM_SOURCE) | sed s/\,/\\\\\|/g)
 SOURCE_DIRS = $(shell find . -maxdepth 1 -mindepth 1 -type d | grep -v $(SED_EXCLUDE_FROM_SRC) | sed s/.\\///)
 SOURCES = $(shell find $(SOURCE_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
 OBJFILES = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(SOURCES))))
+
+ifneq (,$(USER_SOURCE_DIR))
+	USER_SOURCES = $(shell find $(USER_SOURCE_DIR) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
+	USER_OBJFILES =  $(subst $(USER_SOURCE_DIR)/, ,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(USER_SOURCES)))))
+endif
+
 APPNAME = $(shell basename `pwd`)
 CORE_INCLUDES = $(shell find $(OF_ROOT)/libs/openFrameworks/ -type d)
 CORE_INCLUDE_FLAGS = $(addprefix -I,$(CORE_INCLUDES))
@@ -162,9 +168,9 @@ ifeq ($(findstring addons.make,$(wildcard *.make)),addons.make)
 	ADDONS_LIBS_REL_DIRS = $(addsuffix /libs, $(ADDONS))
 	ADDONS_DIRS = $(addprefix $(OF_ROOT)/addons/, $(ADDONS_REL_DIRS) )
 	ADDONS_LIBS_DIRS = $(addprefix $(OF_ROOT)/addons/, $(ADDONS_LIBS_REL_DIRS) )
-	ADDONS_SOURCES = $(shell find $(ADDONS_DIRS) -name "*.cpp" -or -name "*.c")
-	ADDONS_SOURCES += $(shell find $(ADDONS_LIBS_DIRS) -name "*.cpp" -or -name "*.c" 2>/dev/null)
-	ADDONS_OBJFILES = $(subst $(OF_ROOT)/, ,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(ADDONS_SOURCES))))
+	ADDONS_SOURCES = $(shell find $(ADDONS_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
+	ADDONS_SOURCES += $(shell find $(ADDONS_LIBS_DIRS) -name "*.cpp" -or -name "*.c"  -or -name "*.cc" 2>/dev/null)
+	ADDONS_OBJFILES = $(subst $(OF_ROOT)/, ,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(ADDONS_SOURCES)))))
 endif
 
 
@@ -233,8 +239,13 @@ endif
 
 OBJ_OUTPUT = obj/$(ARCH)$(TARGET_NAME)/
 CLEANTARGET = clean$(TARGET_NAME)
+
 OBJS = $(addprefix $(OBJ_OUTPUT), $(OBJFILES))
 DEPFILES = $(patsubst %.o,%.d,$(OBJS))
+
+USER_OBJS = $(addprefix $(OBJ_OUTPUT), $(USER_OBJFILES))
+DEPFILES += $(patsubst %.o,%.d,$(USER_OBJS))
+
 ifeq ($(findstring addons.make,$(wildcard *.make)),addons.make)
 	ADDONS_OBJS = $(addprefix $(OBJ_OUTPUT), $(ADDONS_OBJFILES))
     DEPFILES += $(patsubst %.o,%.d,$(ADDONS_OBJS))
@@ -273,14 +284,18 @@ AndroidRelease:
 $(OBJ_OUTPUT)%.o: %.cpp
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
-	$(CXX) -c $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	$(CXX) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
 
 $(OBJ_OUTPUT)%.o: %.c
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
-	$(CC) -c $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
-
-
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	
+$(OBJ_OUTPUT)%.o: %.cc
+	@echo "compiling object for: " $<
+	mkdir -p $(@D)
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	
 $(OBJ_OUTPUT)%.o: $(OF_ROOT)/%.cpp
 	@echo "compiling addon object for" $<
 	mkdir -p $(@D)
@@ -290,15 +305,30 @@ $(OBJ_OUTPUT)%.o: $(OF_ROOT)/%.c
 	@echo "compiling addon object for" $<
 	mkdir -p $(@D)
 	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o $@ -c $<
-
-$(OBJ_OUTPUT)%.o: %.cc
+	
+$(OBJ_OUTPUT)%.o: $(OF_ROOT)/%.cc
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
-	$(CC) -c $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
 
-$(TARGET): $(OBJS) $(ADDONS_OBJS)
+$(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.c
+	@echo "compiling object for: " $<
+	mkdir -p $(@D)
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	
+$(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.cc
+	@echo "compiling object for: " $<
+	mkdir -p $(@D)
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+
+$(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.cpp
+	@echo "compiling object for: " $<
+	mkdir -p $(@D)
+	$(CXX) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+
+$(TARGET): $(OBJS) $(ADDONS_OBJS) $(USER_OBJS)
 	@echo "linking" $(TARGET) $(GTK)
-	$(CXX) -o $@ $(OBJS) $(ADDONS_OBJS) $(LDFLAGS) $(USER_LDFLAGS) $(TARGET_LIBS) $(ADDONSLIBS) $(USER_LIBS) $(LIBS)
+	$(CXX) -o $@ $(OBJS) $(ADDONS_OBJS) $(USER_OBJS) $(LDFLAGS) $(USER_LDFLAGS) $(TARGET_LIBS) $(ADDONSLIBS) $(USER_LIBS) $(LIBS)
 
 -include $(DEPFILES)
 
@@ -340,6 +370,7 @@ AndroidInstall:
 	$(SDK_ROOT)/platform-tools/adb shell am start -a android.intent.action.MAIN -n cc.openframeworks.$(APPNAME)/cc.openframeworks.$(APPNAME).OFActivity
 
 after:$(TARGET)
+	@echo $(USER_OBJS)
 	cp -r $(OF_ROOT)/export/$(LIBSPATH)/libs bin/
 	@echo
 	@echo "     compiling done"

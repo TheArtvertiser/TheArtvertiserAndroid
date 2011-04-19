@@ -117,6 +117,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>artvertiserCommon</name>
+			<type>2</type>
+			<location>/home/arturo/Escritorio/openFrameworks/apps/artvertiser/artvertiserCommon</location>
+		</link>
+		<link>
 			<name>ofAndroidLib_src</name>
 			<type>2</type>
 			<locationURI>_android_ofAndroidLib_4b0f72cd/src</locationURI>
@@ -130,6 +135,11 @@
 			<name>ofxOpenCv</name>
 			<type>2</type>
 			<location>/home/arturo/Escritorio/openFrameworks/addons/ofxOpenCv</location>
+		</link>
+		<link>
+			<name>ofxXmlSettings</name>
+			<type>2</type>
+			<location>/home/arturo/Escritorio/openFrameworks/addons/ofxXmlSettings</location>
 		</link>
 	</linkedResources>
 </projectDescription>

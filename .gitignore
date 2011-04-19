@@ -1,0 +1,16 @@
+bin/cc
+bin/classes
+bin/libs
+bin/androidFerns
+bin/abdroidFerns_debug
+bin/data/adverts/*
+bin/data/testdata/*
+obj
+gen
+local.properties
+.settings
+.externalToolBuilders
+libOFAndroidApp.so
+*.apk
+*.ap_
+*.dex

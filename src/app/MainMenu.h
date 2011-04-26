@@ -14,6 +14,8 @@
 #include "CircularPB.h"
 #include "ofImage.h"
 #include "Button.h"
+#include "Grid.h"
+#include "IconCache.h"
 
 class MainMenu {
 public:
@@ -30,17 +32,22 @@ public:
 	void cameraPressed(bool & pressed);
 	void snapshotPressed(const void * sender, bool & pressed);
 
+	void windowResized(ofResizeEventArgs & window);
+
 	ofEvent<bool> cameraPressedE;
 	ofEvent<Artvert> artvertSelectedE;
 
 private:
 	vector<Artvert> artverts;
-	vector<gui::Button> snapshots;
+	vector<ofPtr<gui::Button> > snapshots;
 	vector<bool>	readyCache;
 
 	gui::CircularPB circularPB;
 	gui::Button		cameraButton;
+	gui::Grid		grid;
 	bool doRefresh;
+
+	gui::IconCache iconCache;
 };
 
 #endif /* MAINMENU_H_ */

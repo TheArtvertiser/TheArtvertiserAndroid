@@ -13,6 +13,7 @@
 namespace gui{
 Warping::Warping(float minDistance)
 :quad(4)
+,scaleXY(1,1)
 ,minDistance(minDistance)
 ,selectedPoint(-1)
 {
@@ -73,7 +74,7 @@ vector<ofPoint> Warping::getQuad(){
 	if(offset==ofPoint(0,0)) return quad;
 	vector<ofPoint> ret_quad(4);
 	for(int i=0;i<4;i++){
-		ret_quad[i]=quad[i]-offset;
+		ret_quad[i]=(quad[i]-offset)/scaleXY;
 	}
 	return ret_quad;
 }
@@ -82,15 +83,16 @@ void Warping::setMinDistance(float _minDistance){
 	minDistance = _minDistance;
 }
 
-void Warping::setInitialQuad(const vector<ofPoint> & _quad, const ofPoint & _offset){
+void Warping::setInitialQuad(const vector<ofPoint> & _quad, const ofPoint & _offset, const ofPoint & _scaleXY){
 	offset = _offset;
+	scaleXY = _scaleXY;
 	if(_quad.size()<4){
 		ofLog(OF_LOG_ERROR,"gui::Warping::setInitialQuad: error quad has less than 4 points");
 		return;
 	}
 
 	for(int i=0; i<4; ++i){
-		quad[i] = _quad[i] + offset;
+		quad[i] = _quad[i] * scaleXY + offset;
 	}
 
 }

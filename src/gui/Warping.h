@@ -18,7 +18,7 @@ namespace gui{
 		Warping(float minDistance=0);
 
 		void setMinDistance(float minDistance);
-		void setInitialQuad(const vector<ofPoint> & quad, const ofPoint & offset = ofPoint());
+		void setInitialQuad(const vector<ofPoint> & quad, const ofPoint & offset = ofPoint(), const ofPoint & _scaleXY = ofPoint(1,1));
 		void enableEvents();
 		void disableEvents();
 
@@ -35,6 +35,7 @@ namespace gui{
 	private:
 		vector<ofPoint> quad;
 		ofPoint offset;
+		ofPoint scaleXY;
 		float minDistance;
 		int selectedPoint;
 	};

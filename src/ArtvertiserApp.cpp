@@ -10,11 +10,12 @@ int camH = 480;
 void ArtvertiserApp::setup(){
 	ofSetVerticalSync(true);
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	ofBackground(22,17,17);
+	ofBackground(66,51,51);
 	ofEnableAlphaBlending();
 
+	refreshMenu = false;
+
 #ifdef TARGET_ANDROID
-	ofToggleFullscreen();
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
 
@@ -39,18 +40,20 @@ void ArtvertiserApp::setup(){
 	imgQuad[2].set(subs_img.getWidth(),subs_img.getHeight());
 	imgQuad[3].set(0,subs_img.getHeight());
 
-	//artvertiser.setup("model1.bmp",grabber,imgQuad);
-	takeAPhoto.setup(*grabber.getGrabber());
 	menu.setup();
 	menu.enableEvents();
+
+	//artvertiser.setup("model1.bmp",grabber,imgQuad);
+	takeAPhoto.setup(*grabber.getGrabber());
+
 
 	state = Menu;
 
 	comm.setURL("http://192.168.1.35:8888");
 	comm.start();
 
-
-	ofAddListener(takeAPhoto.finishedE,this,&ArtvertiserApp::appFinished);
+	ofAddListener(takeAPhoto.exitE,this,&ArtvertiserApp::appFinished);
+	ofAddListener(takeAPhoto.newPhotoE,this,&ArtvertiserApp::newPhoto);
 	ofAddListener(comm.gotAnalysisE,this,&ArtvertiserApp::gotAnalysis);
 	ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
 	ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
@@ -60,6 +63,10 @@ void ArtvertiserApp::setup(){
 void ArtvertiserApp::update(){
 	switch(state){
 	case Menu:
+		if(refreshMenu){
+			menu.refresh();
+			refreshMenu = false;
+		}
 		menu.update();
 		break;
 	case Photo:
@@ -91,8 +98,8 @@ void ArtvertiserApp::draw(){
 			subs_img.draw(0,0);
 			ofPopMatrix();
 		}
-		ofDrawBitmapString("fps: "+ofToString(ofGetFrameRate(), 2), 660, 20);
-		ofDrawBitmapString("detection fps: "+ofToString(artvertiser.getFps()), 660, 40);
+		ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), 660, 20);
+		ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), 660, 40);
 
 		if(artvertiser.getState()==Detector::Initializing){
 			ofDrawBitmapString("Initializing", 660, 60);
@@ -137,15 +144,12 @@ void ArtvertiserApp::windowResized(int w, int h){
 }
 
 //--------------------------------------------------------------
-void ArtvertiserApp::appFinished(const void * sender, string & filename){
+
+void ArtvertiserApp::newPhoto(const void * sender, string & filename ){
 	if(sender==&takeAPhoto){
 		Artvert artvert(filename);
 		artvert.save();
 		PersistanceEngine::save();
-
-		menu.refresh();
-		menu.enableEvents();
-		state = Menu;
 
 		comm.sendAdvert(artvert);
 		takeAPhoto.getPhoto().saveImage("adverts/"+filename+".bmp");
@@ -153,16 +157,26 @@ void ArtvertiserApp::appFinished(const void * sender, string & filename){
 }
 
 //--------------------------------------------------------------
+void ArtvertiserApp::appFinished(const void * sender,bool & finished){
+	if(sender==&takeAPhoto){
+		menu.refresh();
+		menu.enableEvents();
+		state = Menu;
+
+	}
+}
+
+//--------------------------------------------------------------
 void ArtvertiserApp::gotAnalysis(const Artvert & artvert){
 	if(state==Menu){
-		//ofSystemAlertDialog("New artvert available!");
-		menu.refresh();
+		refreshMenu = true;
 	}
 }
 
 //--------------------------------------------------------------
 void ArtvertiserApp::cameraPressed(bool & pressed){
 	state = Photo;
+	takeAPhoto.start();
 	menu.disableEvents();
 }
 
@@ -171,9 +185,31 @@ void ArtvertiserApp::artvertSelected(Artvert & artvert){
 	if(artvert.isReady()){
 		state = Tracking;
 		menu.disableEvents();
-		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+		if(artvert.hasAlias()){
+			artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+		}else{
+			artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+		}
 	}else{
 
 	}
 }
 
+//--------------------------------------------------------------
+bool ArtvertiserApp::backPressed(){
+	switch(state){
+	case Menu:
+		return false;
+		break;
+	case Photo:
+		takeAPhoto.stop();
+		break;
+	case Tracking:
+		artvertiser.close();
+		menu.enableEvents();
+		state = Menu;
+		return true;
+		break;
+	}
+	return false;
+}

@@ -11,8 +11,12 @@
 //#define _USE_LIVE_VIDEO		// uncomment this to use a live camera
 								// otherwise, we'll use a movie file
 								
-
-class ArtvertiserApp : public ofBaseApp{
+#ifdef TARGET_ANDROID
+	#include "ofxAndroid.h"
+	class ArtvertiserApp : public ofxAndroidApp{
+#else
+	class ArtvertiserApp : public ofBaseApp{
+#endif
 
 	public:
 
@@ -27,11 +31,14 @@ class ArtvertiserApp : public ofBaseApp{
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
 
-		void appFinished(const void * sender, string & filename);
+		void appFinished(const void * sender, bool & finished);
+		void newPhoto(const void * sender, string & filename);
 		void gotAnalysis(const Artvert & artvert);
 
 		void cameraPressed(bool & pressed);
 		void artvertSelected(Artvert & artvert);
+
+		bool backPressed();
 
 	private:
 		Detector artvertiser;
@@ -51,6 +58,8 @@ class ArtvertiserApp : public ofBaseApp{
 			Photo,
 			Tracking
 		}state;
+
+		bool refreshMenu;
 
 };
 

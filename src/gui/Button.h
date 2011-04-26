@@ -12,14 +12,23 @@
 #include "ofRectangle.h"
 #include "ofPoint.h"
 #include "ofImage.h"
+#include "Widget.h"
 
 namespace gui{
-class Button {
+class Button: public Widget {
 public:
 	Button( const ofRectangle & rect=ofRectangle() );
+	~Button(){ disableEvents(); }
 
 	void setRect(const ofRectangle & rect);
+	ofRectangle getRect();
+	void setPosition(const ofPoint & pos);
+
 	void setIcon(ofImage & icon);
+	void setFocusedIcon(ofImage & icon);
+	void setPressedIcon(ofImage & icon);
+
+	float getAspectRatio();
 
 	void enableEvents();
 	void disableEvents();
@@ -55,7 +64,7 @@ private:
 
 	void updateState(Transition transition);
 
-	ofImage icon;
+	ofImage icon, focusedIcon, pressedIcon;
 	ofRectangle rect;
 	State state;
 };

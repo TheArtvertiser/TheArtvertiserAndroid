@@ -28,6 +28,9 @@ public:
 
 private:
 	bool checkUploaded(Artvert & artvert);
+	bool checkAnalized(Artvert & artvert);
+	void downloadAnalisys(Artvert & artvert);
+	void downloadArtvert(Artvert & artvert);
 	void newResponse(ofxHttpResponse & response);
 	ofxHttpResponse postAdvert(const Artvert & artvert);
 

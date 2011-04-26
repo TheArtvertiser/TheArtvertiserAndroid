@@ -10,10 +10,13 @@
 
 #include "ofPolyline.h"
 #include <vector>
+#include "Widget.h"
+#include "ofRectangle.h"
+#include "ofPoint.h"
 
 namespace gui{
 
-class CircularPB {
+class CircularPB: public Widget {
 public:
 	CircularPB( float radius=1 );
 
@@ -23,11 +26,22 @@ public:
 	void draw();
 	void draw(float x, float y);
 
+	void setPosition(const ofPoint & pos);
+	void setRect(const ofRectangle & rect);
+	ofRectangle getRect();
+	float getAspectRatio();
+
+	void enableEvents(){};
+	void disableEvents(){};
+
 private:
 	float radius;
 	ofPolyline bigcircle;
 	vector<int> alphas;
 	int currentPos;
+
+	ofPoint position;
+	ofRectangle rect;
 };
 
 }

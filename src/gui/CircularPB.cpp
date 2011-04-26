@@ -20,6 +20,8 @@ CircularPB::CircularPB( float radius )
 
 void CircularPB::setRadius(float _radius){
 	radius = _radius;
+	rect.width = rect.height = radius;
+	bigcircle.arc(0,0,radius,radius,0,360,15);
 }
 
 void CircularPB::update(){
@@ -40,16 +42,35 @@ void CircularPB::update(){
 void CircularPB::draw(){
 	for(int i=0;i<15;i++){
 		ofSetColor(190,190,190,alphas[i]);
-		ofPoint pos = bigcircle[i];
+		ofPoint pos = bigcircle[i] + position;
 		ofCircle(pos,3);
 	}
 }
 
 void CircularPB::draw(float x, float y){
-	ofPushMatrix();
-	ofTranslate(x,y);
+	ofPoint oldPosition = position;
+	position += ofPoint(x,y);
 	draw();
-	ofPopMatrix();
+	position = oldPosition;
+}
+
+void CircularPB::setPosition(const ofPoint & pos){
+	position = pos;
+}
+
+void CircularPB::setRect(const ofRectangle & _rect){
+	rect = _rect;
+	position.x = rect.x + rect.width*0.5;
+	position.y = rect.y + rect.height*0.5;
+	bigcircle.arc(0,0,rect.width,rect.height,0,360,15);
+}
+
+ofRectangle CircularPB::getRect(){
+	return rect;
+}
+
+float CircularPB::getAspectRatio(){
+	return rect.width / rect.height;
 }
 
 }

@@ -2,3 +2,4 @@ ofxOpenCv
 ofxAndroid
 ofxAccelerometer
 ofxXmlSettings
+ofxThreadedImageLoader

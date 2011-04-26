@@ -39,10 +39,34 @@ void Button::draw(float x, float y){
 void Button::draw(ofRectangle & rect){
 	ofPushStyle();
 	ofSetColor(255,255,255);
-	if(icon.bAllocated()){
-		icon.draw(rect);
-	}else{
-		ofRect(rect);
+	ofNoFill();
+	switch(state){
+	case Focused:
+		if(focusedIcon.bAllocated()){
+			focusedIcon.draw(rect);
+		}else if(icon.bAllocated()){
+			icon.draw(rect);
+		}else{
+			ofRect(rect);
+		}
+		break;
+	case Pressed:
+		if(pressedIcon.bAllocated()){
+			pressedIcon.draw(rect);
+		}else if(icon.bAllocated()){
+			icon.draw(rect);
+		}else{
+			ofRect(rect);
+		}
+		break;
+	default:
+		if(icon.bAllocated()){
+			icon.draw(rect);
+		}else{
+			ofRect(rect);
+		}
+		break;
+
 	}
 	ofPopStyle();
 }
@@ -57,7 +81,7 @@ void Button::mouseDragged(ofMouseEventArgs & mouse){
 	if(rect.inside(ofPoint(mouse.x,mouse.y))){
 		updateState(CursorIn);
 	}else{
-		updateState(CursorIn);
+		updateState(CursorOut);
 	}
 }
 
@@ -109,8 +133,35 @@ void Button::setRect(const ofRectangle & _rect){
 	rect = _rect;
 }
 
+ofRectangle Button::getRect(){
+	return rect;
+}
+
+float Button::getAspectRatio(){
+	if(icon.bAllocated()){
+		return icon.getWidth()/icon.getHeight();
+	}else{
+		return 1;
+	}
+}
+
 void Button::setIcon(ofImage & _icon){
 	icon = _icon;
+	rect.width = icon.getWidth();
+	rect.height = icon.getHeight();
+}
+
+void Button::setFocusedIcon(ofImage & icon){
+	focusedIcon = icon;
+}
+
+void Button::setPressedIcon(ofImage & icon){
+	pressedIcon = icon;
+}
+
+void Button::setPosition(const ofPoint & pos){
+	rect.x = pos.x;
+	rect.y = pos.y;
 }
 
 Button::State Button::getState(){

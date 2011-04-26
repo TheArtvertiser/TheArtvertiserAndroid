@@ -13,6 +13,13 @@
 TakeAPhoto::TakeAPhoto()
 :video(NULL)
 ,state(Init)
+,cameraButton(new gui::Button)
+,yesButton(new gui::Button)
+,noButton(new gui::Button)
+,exitButton(new gui::Button)
+,scale(1)
+,videoWidth(0)
+,videoHeight(0)
 ,pixelsCopied(false)
 {
 
@@ -28,25 +35,32 @@ void TakeAPhoto::setup(ofBaseVideo & _video){
 	quad[3].set(20,460);
 
 	warp.setMinDistance(ofGetWidth()*ofGetHeight()*.00015);
-	warp.setInitialQuad(quad,ofPoint(ofGetWidth()*0.5-video->getWidth()*0.5,ofGetHeight()*0.5-video->getHeight()*0.5));
 
 	photoIcon.loadImage("icons/camera.png");
-	photoButton.setIcon(photoIcon);
-	ofAddListener(photoButton.pressedE,this,&TakeAPhoto::takePhoto);
+	cameraButton->setIcon(photoIcon);
+	ofAddListener(cameraButton->pressedE,this,&TakeAPhoto::takePhoto);
 
 	yesIcon.loadImage("icons/yes.png");
-	yesButton.setIcon(yesIcon);
-	ofAddListener(yesButton.pressedE,this,&TakeAPhoto::yesPressed);
+	yesButton->setIcon(yesIcon);
+	ofAddListener(yesButton->pressedE,this,&TakeAPhoto::yesPressed);
 
 	noIcon.loadImage("icons/no.png");
-	noButton.setIcon(noIcon);
-	ofAddListener(noButton.pressedE,this,&TakeAPhoto::noPressed);
+	noButton->setIcon(noIcon);
+	ofAddListener(noButton->pressedE,this,&TakeAPhoto::noPressed);
 
+	exitIcon.loadImage("icons/exit.png");
+	exitButton->setIcon(exitIcon);
+	ofAddListener(exitButton->pressedE,this,&TakeAPhoto::exitPressed);
 
-	warp.disableEvents();
-	yesButton.disableEvents();
-	noButton.disableEvents();
-	photoButton.enableEvents();
+	ofResizeEventArgs window;
+	window.width = ofGetWidth();
+	window.height = ofGetHeight();
+	windowResized(window);
+
+	borderFrame.setWidth(yesIcon.getWidth()*0.5);
+	borderFrame.setVSpacing(yesIcon.getHeight()*0.1);
+	borderFrame.addWidget(cameraButton);
+	borderFrame.disableEvents();
 
 #ifdef TARGET_ANDROID
 	ofxAndroidVideoGrabber * grabber = dynamic_cast<ofxAndroidVideoGrabber*>(video);
@@ -63,120 +77,125 @@ void TakeAPhoto::setup(ofBaseVideo & _video){
 	videoTex.setAnchorPercent(0.5,0.5);
 
 
-	photoButton.setRect(borderButton);
-	yesButton.setRect(yesCenter);
-	noButton.setRect(noCenter);
-
 	ofAddListener(ofEvents.windowResized,this,&TakeAPhoto::windowResized);
 }
 
+void TakeAPhoto::start(){
+	updateState(Start);
+}
+
+void TakeAPhoto::stop(){
+	updateState(Stop);
+}
+
+void TakeAPhoto::initWarp(){
+	if(!video) return;
+	scale = ofGetHeight()/video->getHeight();
+	videoWidth = video->getWidth()*scale;
+	videoHeight = video->getHeight()*scale;
+
+	warp.setInitialQuad(quad,ofPoint(ofGetWidth()*0.5-videoWidth*0.5,ofGetHeight()*0.5-videoHeight*0.5),ofPoint(scale,scale));
+}
+
 void TakeAPhoto::windowResized(ofResizeEventArgs & window){
-	int centerLX = window.width*0.5 - yesIcon.getWidth() - yesIcon.getWidth()*0.4;
-	int centerRX = window.width*0.5 + yesIcon.getWidth()*0.4;
-	int borderX = window.width*0.5 + video->getWidth()*0.5 + yesIcon.getWidth()*0.1;
+	ofLog(OF_LOG_ERROR,"TakeAPhoto window resized " + ofToString(window.width) + "," + ofToString(window.height));
+	if(!video || video->getWidth()==0 || video->getHeight()==0) return;
+	ofLog(OF_LOG_ERROR,"TakeAPhoto resizing");
+	initWarp();
 
-	yesCenter.set(centerLX,190,128,100);
-	noCenter.set(centerRX,190,100,104);
-	borderButton.set(borderX,200,56,35);
-
-	photoButton.setRect(borderButton);
-	yesButton.setRect(yesCenter);
-	noButton.setRect(noCenter);
-
-	quad.resize(4);
-	quad[0].set(20,20);
-	quad[1].set(620,20);
-	quad[2].set(620,460);
-	quad[3].set(20,460);
-
-	warp.setMinDistance(ofGetWidth()*ofGetHeight()*.00015);
-	warp.setInitialQuad(quad,ofPoint(ofGetWidth()*0.5-video->getWidth()*0.5,ofGetHeight()*0.5-video->getHeight()*0.5));
-
+	int borderX = window.width*0.5 + videoWidth*0.5 + yesIcon.getWidth()*0.1;
+	int borderY = yesIcon.getWidth()*0.1;
+	borderFrame.setPosition(ofPoint(borderX,borderY));
 }
 
 
 
 void TakeAPhoto::updateState(Transition transition){
+	if(transition==Stop){
+		borderFrame.disableEvents();
+		state = Init;
+		bool yes;
+		ofNotifyEvent(exitE,yes,this);
+		return;
+	}
+
 	switch(state){
 	case Init:
-		if(transition==PhotoPressed){
-			warp.disableEvents();
-			yesButton.setRect(yesCenter);
-			yesButton.enableEvents();
-			noButton.enableEvents();
-			photoButton.disableEvents();
-
+		if(transition==Start){
+			borderFrame.clear();
+			borderFrame.addWidget(cameraButton);
+			borderFrame.addWidget(exitButton);
+			borderFrame.enableEvents();
 			state = TakingPhoto;
 		}
-		break;
 
 	case TakingPhoto:
-		if(transition==UpdatedImage){
-			warp.disableEvents();
-			yesButton.enableEvents();
-			noButton.enableEvents();
-			photoButton.disableEvents();
+		if(transition==PhotoPressed){
+			borderFrame.clear();
 
 			state = PhotoTaken;
 		}
 		break;
 
 	case PhotoTaken:
-		if(transition==YesPressed){
-			yesButton.enableEvents();
-			noButton.disableEvents();
-			photoButton.disableEvents();
-			yesButton.setRect(borderButton);
+		if(transition==UpdatedImage){
 			warp.enableEvents();
-
+			initWarp();
+			borderFrame.addWidget(yesButton);
+			borderFrame.addWidget(noButton);
+			borderFrame.addWidget(exitButton);
 			state = SelectingQuad;
-		}
-		if(transition==NoPressed){
-			warp.disableEvents();
-			yesButton.disableEvents();
-			noButton.disableEvents();
-			photoButton.enableEvents();
-
-			state = Init;
 		}
 		break;
 
 	case SelectingQuad:
 		if(transition==YesPressed){
 			warp.disableEvents();
-			yesButton.disableEvents();
-			noButton.disableEvents();
-			photoButton.enableEvents();
+			borderFrame.clear();
+			borderFrame.addWidget(cameraButton);
+			borderFrame.addWidget(exitButton);
 
-			state = Finished; //Loop state, surely later this should just finish
+			state = TakingPhoto;
+
 			ofDirectory("adverts").create();
-			string filename = ofGetTimestampString("%Y%m%d%_H%M%S%i");
+			string filename = ofGetTimestampString("%Y%m%d_%H%M%S%i");
 			photo.saveImage("adverts/" + filename+".jpg",OF_IMAGE_QUALITY_BEST);
 
 			ofFile roi("adverts/" + filename+".bmp.roi",ofFile::WriteOnly);
 			for(int i=0;i<4;i++){
-				roi << warp.getQuad()[i].x << " " << warp.getQuad()[i].y << endl;
+				roi << (int)warp.getQuad()[i].x << " " << (int)warp.getQuad()[i].y << endl;
 			}
 			roi.close();
-			ofNotifyEvent(finishedE,filename,this);
+			ofNotifyEvent(newPhotoE,filename,this);
 		}
-		break;
+		if(transition==NoPressed){
+			warp.disableEvents();
+			borderFrame.clear();
+			borderFrame.addWidget(cameraButton);
+			borderFrame.addWidget(exitButton);
 
-	case QuadSelected:
-		break;
-	case Finished:
+			state = TakingPhoto;
+		}
 		break;
 	}
 }
 
 void TakeAPhoto::update(){
-	if(state==TakingPhoto && pixelsCopied){
+
+	if(videoWidth==0 || videoHeight==0){
+		ofResizeEventArgs window;
+		window.width = ofGetWidth();
+		window.height = ofGetHeight();
+		windowResized(window);
+	}
+	borderFrame.update();
+
+	if(state==PhotoTaken && pixelsCopied){
 		photo = photoPixels;
 		pixelsCopied = false;
 		updateState(UpdatedImage);
-	}else if(state == Init){
+	}else if(state == TakingPhoto){
 		if(video->isFrameNew()){
-			cout << "new frame" << endl;
 			videoTex.loadData(video->getPixelsRef());
 		}
 	}
@@ -184,22 +203,15 @@ void TakeAPhoto::update(){
 
 void TakeAPhoto::draw(){
 	ofPushStyle();
-	if(state==PhotoTaken){
+	ofSetColor(255);
+	borderFrame.draw();
+	if(state==SelectingQuad){
 		ofSetColor(255);
-		photo.draw(ofGetWidth()*0.5,ofGetHeight()*0.5);
-		ofSetColor(40);
-		yesButton.draw();
-		noButton.draw();
-	}else if(state==SelectingQuad){
-		ofSetColor(255);
-		photo.draw(ofGetWidth()*0.5,ofGetHeight()*0.5);
+		photo.draw(ofGetWidth()*0.5,ofGetHeight()*0.5,videoWidth,videoHeight);
 		warp.draw();
-		ofSetColor(40);
-		yesButton.draw();
 	}else{
 		ofSetColor(255);
-		if(video) videoTex.draw(ofGetWidth()*0.5,ofGetHeight()*0.5);
-		photoButton.draw();
+		if(video) videoTex.draw(ofGetWidth()*0.5,ofGetHeight()*0.5,videoWidth,videoHeight);
 	}
 	ofPopStyle();
 }
@@ -222,6 +234,10 @@ void TakeAPhoto::yesPressed(bool & pressed){
 
 void TakeAPhoto::noPressed(bool & pressed){
 	updateState(NoPressed);
+}
+
+void TakeAPhoto::exitPressed(bool & pressed){
+	updateState(Stop);
 }
 
 void TakeAPhoto::newFrame(ofPixels & newFrame){

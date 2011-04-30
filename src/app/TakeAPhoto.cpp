@@ -143,15 +143,15 @@ void TakeAPhoto::updateState(Transition transition){
 			borderFrame.enableEvents();
 			video->setAnchorPercent(0.5,0.5);
 			state = TakingPhoto;
+			geo->setSize(320,240);
 			geo->start();
-			geoPanel.expand();
+			geoPanel.compress();
 			ofAddListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		}
 
 	case TakingPhoto:
 		if(transition==PhotoPressed){
 			borderFrame.clear();
-			geoPanel.compress();
 			state = PhotoTaken;
 		}
 		break;
@@ -198,7 +198,6 @@ void TakeAPhoto::updateState(Transition transition){
 			borderFrame.clear();
 			borderFrame.addWidget(cameraButton);
 			borderFrame.addWidget(exitButton);
-			geoPanel.expand();
 			state = TakingPhoto;
 		}
 		break;

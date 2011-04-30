@@ -43,6 +43,7 @@ private:
 	vector<ofFile> artverts;
 	bool refresh;
 	ofPtr<Geo> geo;
+	ofMutex mutex;
 };
 
 #endif /* ARTVERTINFO_H_ */

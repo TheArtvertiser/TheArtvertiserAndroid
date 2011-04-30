@@ -27,9 +27,12 @@ void ArtvertInfo::setGeo(ofPtr<Geo> & _geo){
 }
 
 void ArtvertInfo::show(Artvert & _artvert){
+	mutex.lock();
 	artvert = _artvert;
 
+
 	location = artvert.getLocation();
+	geo->setSize(ofGetWidth()/3.,ofGetWidth()/4.);
 	geo->setLocation(location);
 
 	ofImage cameraIcon;
@@ -44,7 +47,7 @@ void ArtvertInfo::show(Artvert & _artvert){
 	}
 
 	grid.clear();
-	grid.setRectangle(ofRectangle(ofGetWidth()/3.+40,20,ofGetWidth()-(ofGetWidth()/3.+60),ofGetHeight()));
+	grid.setRectangle(ofRectangle(ofGetWidth()/3.+40,50,ofGetWidth()-(ofGetWidth()/3.+60),ofGetHeight()));
 	grid.setCellSize(cameraIcon.getWidth()*1.5, cameraIcon.getWidth()*1.5*3./4.);
 	grid.setSpacing(20,20);
 	grid.enableEvents();
@@ -73,6 +76,7 @@ void ArtvertInfo::show(Artvert & _artvert){
 	}
 
 	refresh = true;
+	mutex.unlock();
 }
 
 void ArtvertInfo::stop(){
@@ -91,18 +95,19 @@ void ArtvertInfo::update(){
 }
 
 void ArtvertInfo::draw(){
+	mutex.lock();
 	advert->draw(20,20);
 	geo->draw(20,ofGetHeight()-20-geo->getHeight());
 
 	if(artvert.isReady())
-		ofDrawBitmapString("Ready",20,advert->getHeight()+40);
+		ofDrawBitmapString("Ready",advert->getWidth()+40,30);
 	else
-		ofDrawBitmapString("Waiting analisys",20,advert->getHeight()+40);
+		ofDrawBitmapString("Waiting analisys",advert->getWidth()+40,30);
 
-	ofDrawBitmapString(geo->getAddress() ,20,advert->getHeight()+60);
+	ofDrawBitmapString(geo->getAddress() ,20, advert->getHeight()+40);
 
 	grid.draw();
-
+	mutex.unlock();
 }
 
 void ArtvertInfo::artvertPressed(const void * sender, bool & pressed){

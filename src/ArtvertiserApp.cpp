@@ -51,6 +51,7 @@ void ArtvertiserApp::setup(){
 	comm.start();
 
 	circularPB.setRadius(30);
+	circularPB.setColor(ofColor(190,190,190));
 	circularPB.setPosition(ofPoint(grabber.getWidth()*0.5,ofGetHeight()*0.5));
 
 

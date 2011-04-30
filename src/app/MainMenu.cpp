@@ -23,14 +23,16 @@ void MainMenu::setup(){
 	cameraButton.setPosition(ofPoint(ofGetWidth()-cameraIcon.getWidth()-20,20));
 	ofAddListener(cameraButton.pressedE,this,&MainMenu::cameraPressed);
 
-	grid.setPosition(ofPoint(20, 20));
-	grid.setCellSize(cameraIcon.getWidth()*1.5, cameraIcon.getWidth()*1.5*3./4.);
+	//grid.setPosition(ofPoint(20, 20));
+	grid.setCellSize(cameraIcon.getWidth()*1.4, cameraIcon.getWidth()*1.4*3./4.);
 	grid.setSpacing(20,20);
+	grid.setRectangle(ofRectangle(20,20,cameraButton.getRect().x-5,ofGetHeight()));
 	refresh();
 }
 
 void MainMenu::windowResized(ofResizeEventArgs & window){
 	cameraButton.setPosition(ofPoint(ofGetWidth()-cameraButton.getRect().width-20,20));
+	grid.setRectangle(ofRectangle(20,20,cameraButton.getRect().x-5,ofGetHeight()));
 }
 
 void MainMenu::enableEvents(){

@@ -21,11 +21,16 @@ TakeAPhoto::TakeAPhoto()
 ,videoWidth(0)
 ,videoHeight(0)
 ,pixelsCopied(false)
+,address(new gui::Label)
 {
 
 }
 
-void TakeAPhoto::setup(ofBaseVideo & _video){
+void TakeAPhoto::setGeo(ofPtr<Geo> & _geo){
+	geo = _geo;
+}
+
+void TakeAPhoto::setup(ofVideoGrabber & _video){
 	video = &_video;
 
 	quad.resize(4);
@@ -63,21 +68,29 @@ void TakeAPhoto::setup(ofBaseVideo & _video){
 	borderFrame.disableEvents();
 
 #ifdef TARGET_ANDROID
-	ofxAndroidVideoGrabber * grabber = dynamic_cast<ofxAndroidVideoGrabber*>(video);
+	ofxAndroidVideoGrabber * grabber = dynamic_cast<ofxAndroidVideoGrabber*>(_video.getGrabber().get());
 	ofAddListener(grabber->newFrameE,this,&TakeAPhoto::newFrame);
 #elif defined (TARGET_LINUX)
-	ofGstVideoGrabber * grabber = dynamic_cast<ofGstVideoGrabber*>(video);
+	ofGstVideoGrabber * grabber = dynamic_cast<ofGstVideoGrabber*>(_video.getGrabber().get());
 	ofGstVideoUtils * videoUtils = grabber->getGstVideoUtils();
 	ofAddListener(videoUtils->bufferEvent,this,&TakeAPhoto::newFrame);
 #endif
 
-	videoTex.allocate(video->getWidth(),video->getHeight(),GL_RGB);
 
 	photo.setAnchorPercent(0.5,0.5);
-	videoTex.setAnchorPercent(0.5,0.5);
 
 
 	ofAddListener(ofEvents.windowResized,this,&TakeAPhoto::windowResized);
+
+	geoPanel.setRectCompressed(ofRectangle(0,0,380,40));
+	geoPanel.setRectExpanded(ofRectangle(0,0,380,320));
+	geoPanel.setLeftMargin(20);
+	geoPanel.expand();
+	geoPanel.addWidget(address);
+	geoPanel.addDrawable(geo);
+	geoPanel.setVSpacing(15);
+	geoPanel.enableEvents();
+
 }
 
 void TakeAPhoto::start(){
@@ -109,11 +122,13 @@ void TakeAPhoto::windowResized(ofResizeEventArgs & window){
 }
 
 
-
 void TakeAPhoto::updateState(Transition transition){
 	if(transition==Stop){
+		video->resetAnchor();
 		borderFrame.disableEvents();
 		state = Init;
+		geo->stop();
+		ofRemoveListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		bool yes;
 		ofNotifyEvent(exitE,yes,this);
 		return;
@@ -126,13 +141,17 @@ void TakeAPhoto::updateState(Transition transition){
 			borderFrame.addWidget(cameraButton);
 			borderFrame.addWidget(exitButton);
 			borderFrame.enableEvents();
+			video->setAnchorPercent(0.5,0.5);
 			state = TakingPhoto;
+			geo->start();
+			geoPanel.expand();
+			ofAddListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		}
 
 	case TakingPhoto:
 		if(transition==PhotoPressed){
 			borderFrame.clear();
-
+			geoPanel.compress();
 			state = PhotoTaken;
 		}
 		break;
@@ -166,6 +185,12 @@ void TakeAPhoto::updateState(Transition transition){
 				roi << (int)warp.getQuad()[i].x << " " << (int)warp.getQuad()[i].y << endl;
 			}
 			roi.close();
+
+			ofFile location("adverts/"+ filename + ".bmp.location",ofFile::WriteOnly);
+			ofxLocation loc = geo->getLocation();
+			location << loc;
+			location.close();
+
 			ofNotifyEvent(newPhotoE,filename,this);
 		}
 		if(transition==NoPressed){
@@ -173,7 +198,7 @@ void TakeAPhoto::updateState(Transition transition){
 			borderFrame.clear();
 			borderFrame.addWidget(cameraButton);
 			borderFrame.addWidget(exitButton);
-
+			geoPanel.expand();
 			state = TakingPhoto;
 		}
 		break;
@@ -194,11 +219,12 @@ void TakeAPhoto::update(){
 		photo = photoPixels;
 		pixelsCopied = false;
 		updateState(UpdatedImage);
-	}else if(state == TakingPhoto){
-		if(video->isFrameNew()){
-			videoTex.loadData(video->getPixelsRef());
-		}
 	}
+
+	geo->update();
+	address->setText(geo->getAddress());
+	geoPanel.repositionWidgets();
+	geoPanel.update();
 }
 
 void TakeAPhoto::draw(){
@@ -211,9 +237,18 @@ void TakeAPhoto::draw(){
 		warp.draw();
 	}else{
 		ofSetColor(255);
-		if(video) videoTex.draw(ofGetWidth()*0.5,ofGetHeight()*0.5,videoWidth,videoHeight);
+		if(video) video->draw(ofGetWidth()*0.5,ofGetHeight()*0.5,videoWidth,videoHeight);
+
+		//ofxLocation location = geo->getLocation();
+		//ofDrawBitmapString(ofToString(location.altitude) + " " + ofToString(location.latitude) + " " + ofToString(location.longitude) + " " + ofToString(location.bearing),20,20);
+		//ofDrawBitmapString(geo->getAddress(),20,20);
+		ofSetColor(255,255,255,200);
+		//geo->drawLastLocationImage(20,40);
+		geoPanel.draw();
+		ofPopStyle();
 	}
-	ofPopStyle();
+
+
 }
 
 TakeAPhoto::State TakeAPhoto::getState(){
@@ -245,4 +280,8 @@ void TakeAPhoto::newFrame(ofPixels & newFrame){
 		photoPixels = video->getPixelsRef();
 		pixelsCopied = true;
 	}
+}
+
+void TakeAPhoto::touchDoubleTap(ofTouchEventArgs & touch){
+	geo->increaseZoom();
 }

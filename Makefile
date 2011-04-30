@@ -105,26 +105,23 @@ else
 	GTK = $(shell pkg-config gtk+-2.0 --exists; echo $$?)
 	ifeq ($(GTK),0)
 		CFLAGS += $(shell pkg-config gtk+-2.0 --cflags) -DOF_USING_GTK
-		LIBS += $(shell pkg-config gtk+-2.0 --libs)
+		SYSTEMLIBS += $(shell pkg-config gtk+-2.0 --libs)
 	endif
 
 	#check if mpg123 exists and add it
 	MPG123 = $(shell pkg-config libmpg123 --exists; echo $$?)
 	ifeq ($(MPG123),0)
 		CFLAGS += -DOF_USING_MPG123
-		LIBS += -lmpg123
+		SYSTEMLIBS += -lmpg123
 	endif
 endif
-LIB_STATIC = $(shell ls $(OF_ROOT)/libs/*/lib/$(LIBSPATH)/*.a | grep -v openFrameworksCompiled | grep -v poco| sed "s/.*\\/lib\([^/]*\)\.a/-l\1/")
-LIB_SHARED = $(shell ls $(OF_ROOT)/libs/*/lib/$(LIBSPATH)/*.so | grep -v openFrameworksCompiled| sed "s/.*\\/lib\([^/]*\)\.so/-l\1/")
+LIB_STATIC = $(shell ls $(OF_ROOT)/libs/*/lib/$(LIBSPATH)/*.a  2> /dev/null | grep -v openFrameworksCompiled | grep -v Poco)
+LIB_SHARED = $(shell ls $(OF_ROOT)/libs/*/lib/$(LIBSPATH)/*.so  2> /dev/null | grep -v openFrameworksCompiled)
 LIB_STATIC += $(OF_ROOT)/libs/poco/lib/$(LIBSPATH)/libPocoNet.a ../../../libs/poco/lib/$(LIBSPATH)/libPocoXML.a ../../../libs/poco/lib/$(LIBSPATH)/libPocoUtil.a ../../../libs/poco/lib/$(LIBSPATH)/libPocoFoundation.a
-LIB_PATHS_FLAGS = $(shell ls -d $(OF_ROOT)/libs/*/lib/$(LIBSPATH) | sed "s/\(\.*\)/-L\1/")
-ifeq ($(ARCH),android)
-	LIB_PATHS_FLAGS += -L$(OF_ROOT)/libs/openFrameworksCompiled/lib/android
-endif
+
 
 CFLAGS += -Wall -fexceptions
-CFLAGS += -Isrc
+CFLAGS += -I.
 CFLAGS += $(INCLUDES_FLAGS)
 CFLAGS += $(CORE_INCLUDE_FLAGS)
 
@@ -133,69 +130,70 @@ CFLAGS += $(CORE_INCLUDE_FLAGS)
 LIBS += $(LIB_SHARED)
 LIBS += $(LIB_STATIC)
 ifeq ($(ARCH),android)
-	LDFLAGS = $(LIB_PATHS_FLAGS) --sysroot=$(SYSROOT) -nostdlib -L"$(NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/libs/armeabi"
-	LIBS += -lstdc++ -lsupc++ -lGLU -lgcc -lz -lGLESv1_CM -llog -ldl -lm -lc
+	LDFLAGS = --sysroot=$(SYSROOT) -nostdlib -L"$(NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/libs/armeabi"
+	SYSTEMLIBS += -lstdc++ -lsupc++ -lgcc -lz -lGLESv1_CM -llog -ldl -lm -lc
 else
-	LDFLAGS = $(LIB_PATHS_FLAGS) -Wl,-rpath=./libs
-	LIBS += $(shell pkg-config  glew gstreamer-0.10 gstreamer-video-0.10 gstreamer-base-0.10 gstreamer-app-0.10 libudev --libs)
-	LIBS += -lglut -lGL -lGLU -lasound -lopenal -lsndfile -lvorbis -lFLAC -logg -lfreeimage
+	LDFLAGS = -Wl,-rpath=./libs
+	SYSTEMLIBS += $(shell pkg-config  glew gstreamer-0.10 gstreamer-video-0.10 gstreamer-base-0.10 gstreamer-app-0.10 libudev --libs)
+	SYSTEMLIBS += -lglut -lGL -lasound -lopenal -lsndfile -lvorbis -lFLAC -logg -lfreeimage
 endif
 
 
 ifeq ($(findstring addons.make,$(wildcard *.make)),addons.make)
-	ADDONS_INCLUDES = $(shell find $(OF_ROOT)/addons/*/src/ -type d)
-	ADDONS_INCLUDES += $(shell find $(OF_ROOT)/addons/*/libs/ -type d)
-	ADDONSCFLAGS = $(addprefix -I,$(ADDONS_INCLUDES))
-
-	ifeq ($(findstring libsorder.make,$(wildcard $(OF_ROOT)/addons/*/libs/*/lib/$(LIBSPATH)/libsorder.make)),libsorder.make)
-		ADDONS_LIBS_W_ORDER = $(shell cat $(OF_ROOT)/addons/*/libs/*/lib/$(LIBSPATH)/libsorder.make)
-	endif
-
-	SED_EXCLUDE_LIBS = $(addsuffix \ \\\| , $(ADDONS_LIBS_W_ORDER))
-	ADDONS_LIBS_STATICS = $(shell ls $(OF_ROOT)/addons/*/libs/*/lib/$(LIBSPATH)/*.a | grep -v "$(SED_EXCLUDE_LIBS) null")
-	ADDONS_LIBS_STATICS += $(addprefix -l, $(ADDONS_LIBS_W_ORDER))
-	ADDONS_LIBS_STATICS += $(addprefix -L, $(shell ls $(OF_ROOT)/addons/*/libs/*/lib/$(LIBSPATH)/libsorder.make | sed s/libsorder.make//g))
-	ADDONS_LIBS_SHARED = $(shell ls $(OF_ROOT)/addons/*/libs/*/lib/$(LIBSPATH)/*.so)
-	ADDONSLIBS = $(ADDONS_LIBS_STATICS)
-	ADDONSLIBS += $(ADDONS_LIBS_SHARED)
-
-	ifeq ($(ARCH),android)
-		ADDONS = $(shell cat addons.make)
-	else
-		ADDONS = $(shell cat addons.make | grep -v ofxAndroid)
-	endif
+	ADDONS = $(shell cat addons.make)
 	ADDONS_REL_DIRS = $(addsuffix /src, $(ADDONS))
 	ADDONS_LIBS_REL_DIRS = $(addsuffix /libs, $(ADDONS))
 	ADDONS_DIRS = $(addprefix $(OF_ROOT)/addons/, $(ADDONS_REL_DIRS) )
 	ADDONS_LIBS_DIRS = $(addprefix $(OF_ROOT)/addons/, $(ADDONS_LIBS_REL_DIRS) )
-	ADDONS_SOURCES = $(shell find $(ADDONS_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
-	ADDONS_SOURCES += $(shell find $(ADDONS_LIBS_DIRS) -name "*.cpp" -or -name "*.c"  -or -name "*.cc" 2>/dev/null)
-	ADDONS_OBJFILES = $(subst $(OF_ROOT)/, ,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(ADDONS_SOURCES)))))
+	ADDONS_BIN_LIBS_DIRS = $(addsuffix /*/lib/$(LIBSPATH), $(ADDONS_LIBS_DIRS) )
+	
+	ADDONS_INCLUDES = $(ADDONS_DIRS)
+	ADDONS_INCLUDES = $(ADDONS_LIBS_DIRS)
+	ADDONS_INCLUDES += $(shell find $(ADDONS_DIRS) -type d 2> /dev/null)
+	ADDONS_INCLUDES += $(shell find $(ADDONS_LIBS_DIRS) -type d 2> /dev/null)
+	ADDONSCFLAGS = $(addprefix -I,$(ADDONS_INCLUDES))
+
+	ifeq ($(findstring libsorder.make,$(shell find $(ADDONS_BIN_LIBS_DIRS) -name libsorder.make 2> /dev/null)),libsorder.make)
+		ADDONS_LIBS_W_ORDER = $(shell cat $(shell find $(ADDONS_BIN_LIBS_DIRS) -name libsorder.make 2> /dev/null))
+	endif
+
+	SED_EXCLUDE_LIBS = $(addsuffix \|,$(ADDONS_LIBS_W_ORDER))
+	ADDONS_LIBS_STATICS = $(shell find $(ADDONS_BIN_LIBS_DIRS) -name *.a 2> /dev/null | grep -v '$(SED_EXCLUDE_LIBS)')
+	ADDONS_LIBS_STATICS += $(addprefix -l, $(ADDONS_LIBS_W_ORDER))
+	ADDONS_LIBS_STATICS += $(addprefix -L, $(shell find $(ADDONS_BIN_LIBS_DIRS) -name libsorder.make 2> /dev/null | sed s/libsorder.make//g))
+	ADDONS_LIBS_SHARED = $(shell find $(ADDONS_BIN_LIBS_DIRS) -name *.so 2> /dev/null)
+	ADDONSLIBS = $(ADDONS_LIBS_STATICS)
+	ADDONSLIBS += $(ADDONS_LIBS_SHARED)
+
+
+	ADDONS_SOURCES = $(shell find $(ADDONS_DIRS) -name "*.cpp" -or -name "*.c" 2> /dev/null)
+	ADDONS_SOURCES += $(shell find $(ADDONS_LIBS_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.cc" 2>/dev/null)
+	ADDONS_OBJFILES = $(subst $(OF_ROOT)/, ,$(patsubst %.cc,%.o,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(ADDONS_SOURCES)))))
 endif
 
 
 ifeq ($(findstring Debug,$(MAKECMDGOALS)),Debug)
 	TARGET_CFLAGS = -g
-	TARGET_LIBS = -lopenFrameworksDebug
+	TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(LIBSPATH)/libopenFrameworksDebug.a
 	TARGET_NAME = Debug
 endif
 
 ifeq ($(findstring Release,$(MAKECMDGOALS)),Release)
 	TARGET_CFLAGS = $(COMPILER_OPTIMIZATION)
-	TARGET_LIBS = -lopenFrameworks
+	TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(LIBSPATH)/libopenFrameworks.a
 	TARGET_NAME = Release
 endif
 
 ifeq ($(ARCH),android)
 	ifeq ($(findstring Debug,$(MAKECMDGOALS)),Debug)
 		TARGET = libs/armeabi/libOFAndroidApp.so
-		TARGET_LIBS = -lopenFrameworksDebug
+		TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(ARCH)/libopenFrameworksDebug.a
 		LDFLAGS += -Wl,--fix-cortex-a8 -shared
 	endif
 
 	ifeq ($(findstring Release,$(MAKECMDGOALS)),Release)
 	    TARGET = libs/armeabi/libOFAndroidApp.so
-		TARGET_LIBS = -lopenFrameworks
+		TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(ARCH)/libopenFrameworks.a
 		LDFLAGS += -Wl,--fix-cortex-a8 -shared
 	endif
 
@@ -203,13 +201,13 @@ ifeq ($(ARCH),android)
 		TARGET_NAME = Release_arm7
 		TARGET_CFLAGS += -march=armv7-a -mfloat-abi=softfp -mfpu=neon
 	    TARGET = libs/armeabi-v7a/libOFAndroidApp.so
-		TARGET_LIBS = -lopenFrameworks_arm7
+		TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(ARCH)/libopenFrameworks_arm7.a
 		#LDFLAGS += -shared  already included through Release
 	endif
 
 	ifeq ($(findstring TestLink,$(MAKECMDGOALS)),TestLink)
 		TARGET_NAME = Debug
-		TARGET_LIBS = -lopenFrameworksDebug
+		TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(ARCH)/libopenFrameworksDebug.a
 		LDFLAGS += -Wl,--entry=main,--fix-cortex-a8
 	    BIN_NAME = $(APPNAME)
 	    TARGET = obj/$(BIN_NAME)
@@ -236,6 +234,7 @@ endif
 ifeq ($(MAKECMDGOALS),clean)
 	TARGET = bin/$(APPNAME)_debug bin/$(APPNAME)
 endif
+
 
 OBJ_OUTPUT = obj/$(ARCH)$(TARGET_NAME)/
 CLEANTARGET = clean$(TARGET_NAME)
@@ -284,18 +283,18 @@ AndroidRelease:
 $(OBJ_OUTPUT)%.o: %.cpp
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
-	$(CXX) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	$(CXX) -c $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
 
 $(OBJ_OUTPUT)%.o: %.c
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
-	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
-	
+	$(CC) -c $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+
 $(OBJ_OUTPUT)%.o: %.cc
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
-	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
-	
+	$(CC) -c $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+
 $(OBJ_OUTPUT)%.o: $(OF_ROOT)/%.cpp
 	@echo "compiling addon object for" $<
 	mkdir -p $(@D)
@@ -307,9 +306,9 @@ $(OBJ_OUTPUT)%.o: $(OF_ROOT)/%.c
 	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o $@ -c $<
 	
 $(OBJ_OUTPUT)%.o: $(OF_ROOT)/%.cc
-	@echo "compiling object for: " $<
+	@echo "compiling addon object for" $<
 	mkdir -p $(@D)
-	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
+	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o $@ -c $<
 
 $(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.c
 	@echo "compiling object for: " $<
@@ -325,26 +324,21 @@ $(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.cpp
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
 	$(CXX) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
-
-$(TARGET): $(OBJS) $(ADDONS_OBJS) $(USER_OBJS)
-	@echo "linking" $(TARGET) $(GTK)
-	$(CXX) -o $@ $(OBJS) $(ADDONS_OBJS) $(USER_OBJS) $(LDFLAGS) $(USER_LDFLAGS) $(TARGET_LIBS) $(ADDONSLIBS) $(USER_LIBS) $(LIBS)
+	
+$(TARGET): $(OBJS) $(ADDONS_OBJS) $(USER_OBJS) $(TARGET_LIBS) $(LIBS)
+	@echo 'linking $(TARGET)'
+	$(CXX) -o $@ $(OBJS) $(ADDONS_OBJS) $(USER_OBJS) $(LDFLAGS) $(USER_LDFLAGS) $(TARGET_LIBS) $(ADDONSLIBS) $(USER_LIBS) $(LIBS) $(SYSTEMLIBS)
 
 -include $(DEPFILES)
 
 .PHONY: clean cleanDebug cleanRelease CleanAndroid
-
 $(CLEANTARGET):
-ifeq ($(CLEANTARGET),clean)
-	rm -rf -v obj
-else
 	rm -Rf -v $(OBJ_OUTPUT)
-endif
 	rm -f -v $(TARGET)
 	rm -Rf -v bin/libs
 
 CleanAndroid:
-	rm -Rf obj/android*
+	rm -Rf obj
 	rm -f -v libs/armeabi-v7a/libOFAndroidApp.so
 	rm -f -v libs/armeabi/libOFAndroidApp.so
 	rm -f -v obj/$(APPNAME)
@@ -370,7 +364,6 @@ AndroidInstall:
 	$(SDK_ROOT)/platform-tools/adb shell am start -a android.intent.action.MAIN -n cc.openframeworks.$(APPNAME)/cc.openframeworks.$(APPNAME).OFActivity
 
 after:$(TARGET)
-	@echo $(USER_OBJS)
 	cp -r $(OF_ROOT)/export/$(LIBSPATH)/libs bin/
 	@echo
 	@echo "     compiling done"

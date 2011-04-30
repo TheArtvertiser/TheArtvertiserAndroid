@@ -13,12 +13,18 @@
 #include "Warping.h"
 #include "Button.h"
 #include "VFrame.h"
+#include "ofxAndroidGPS.h"
+#include "Geo.h"
+#include "ExpandablePanel.h"
+#include "Label.h"
 
 class TakeAPhoto {
 public:
 	TakeAPhoto();
 
-	void setup(ofBaseVideo & _video);
+	void setGeo(ofPtr<Geo> & geo);
+
+	void setup(ofVideoGrabber & _video);
 	void start();
 	void stop();
 
@@ -26,6 +32,8 @@ public:
 	void draw();
 
 	void windowResized(ofResizeEventArgs & window);
+
+	void touchDoubleTap(ofTouchEventArgs & touch);
 
 	enum State{
 		Init,
@@ -61,8 +69,7 @@ private:
 	void updateState(Transition transition);
 	void initWarp();
 
-	ofBaseVideo * video;
-	ofTexture videoTex;
+	ofBaseVideoDraws * video;
 
 	ofPixels photoPixels;
 	ofImage photo;
@@ -81,6 +88,13 @@ private:
 	float videoWidth,videoHeight;
 
 	bool pixelsCopied;
+
+	ofPoint originalVideoAnchor;
+
+	ofPtr<Geo> geo;
+
+	ofPtr<gui::Label> address;
+	gui::ExpandablePanel geoPanel;
 
 	// This class cannot be copied
 	const TakeAPhoto & operator=(const TakeAPhoto &){return *this;};

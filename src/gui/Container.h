@@ -11,6 +11,7 @@
 #include "Widget.h"
 #include "ofTypes.h"
 #include "ofPoint.h"
+#include "ofBaseTypes.h"
 
 namespace gui{
 class Container {
@@ -24,16 +25,20 @@ public:
 	void removeWidget(ofPtr<Widget> widget);
 	ofPtr<Widget> getWidget(int i);
 	ofPtr<Widget> operator[](int i);
+
+	void addDrawable(ofPtr<ofBaseDraws> drawable);
+	void removeDrawable(ofPtr<ofBaseDraws> drawable);
+
 	int size();
 
 
 	void clear();
 
-	void update();
-	void draw();
+	virtual void update();
+	virtual void draw();
 
-	void enableEvents();
-	void disableEvents();
+	virtual void enableEvents();
+	virtual void disableEvents();
 
 protected:
 	virtual void repositionWidgets()=0;

@@ -13,6 +13,7 @@
 #include "Widget.h"
 #include "ofRectangle.h"
 #include "ofPoint.h"
+#include "ofColor.h"
 
 namespace gui{
 
@@ -28,6 +29,7 @@ public:
 
 	void setPosition(const ofPoint & pos);
 	void setRect(const ofRectangle & rect);
+	void setColor(const ofColor & color);
 	ofRectangle getRect();
 	float getAspectRatio();
 
@@ -42,6 +44,8 @@ private:
 
 	ofPoint position;
 	ofRectangle rect;
+
+	ofColor color;
 };
 
 }

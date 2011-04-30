@@ -6,10 +6,10 @@
 #include "TakeAPhoto.h"
 #include "Comm.h"
 #include "MainMenu.h"
+#include "ArtvertInfo.h"
+#include "IconCache.h"
+#include "Geo.h"
 
-
-//#define _USE_LIVE_VIDEO		// uncomment this to use a live camera
-								// otherwise, we'll use a movie file
 								
 #ifdef TARGET_ANDROID
 	#include "ofxAndroid.h"
@@ -36,7 +36,8 @@
 		void gotAnalysis(const Artvert & artvert);
 
 		void cameraPressed(bool & pressed);
-		void artvertSelected(Artvert & artvert);
+		void advertSelected(Artvert & artvert);
+		void artvertSelected(ofFile & artvert);
 
 		bool backPressed();
 
@@ -45,21 +46,28 @@
 		TakeAPhoto takeAPhoto;
 		Comm comm;
 		MainMenu menu;
+		ArtvertInfo artvertInfo;
 
 		ofImage ofimg, subs_img;
 		int counter;
 		ofVideoGrabber grabber;
 		vector<ofPoint> imgQuad;
 		ofxCvColorImage colorImg, smallColorImg;
+		gui::CircularPB circularPB;
+
+		ofPtr<gui::IconCache> iconCache;
+		ofPtr<Geo> geo;
+
 		bool allocated;
+
+		bool refreshArtvert;
 
 		enum State{
 			Menu,
 			Photo,
+			Info,
 			Tracking
 		}state;
-
-		bool refreshMenu;
 
 };
 

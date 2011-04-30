@@ -12,6 +12,7 @@ namespace gui{
 Button::Button(const ofRectangle & rect)
 :rect(rect)
 ,state(Enabled)
+,refreshIcon(false)
 {
 
 }
@@ -25,18 +26,18 @@ void Button::disableEvents(){
 }
 
 void Button::update(){
-
+	if(refreshIcon){
+		icon.setUseTexture(true);
+		focusedIcon.setUseTexture(true);
+		pressedIcon.setUseTexture(true);
+		icon.reloadTexture();
+		focusedIcon.reloadTexture();
+		pressedIcon.reloadTexture();
+		refreshIcon = false;
+	}
 }
 
 void Button::draw(){
-	draw(rect);
-}
-
-void Button::draw(float x, float y){
-	draw(rect+ofPoint(x,y));
-}
-
-void Button::draw(ofRectangle & rect){
 	ofPushStyle();
 	ofSetColor(255,255,255);
 	ofNoFill();
@@ -149,14 +150,17 @@ void Button::setIcon(ofImage & _icon){
 	icon = _icon;
 	rect.width = icon.getWidth();
 	rect.height = icon.getHeight();
+	refreshIcon = true;
 }
 
 void Button::setFocusedIcon(ofImage & icon){
 	focusedIcon = icon;
+	refreshIcon = true;
 }
 
 void Button::setPressedIcon(ofImage & icon){
 	pressedIcon = icon;
+	refreshIcon = true;
 }
 
 void Button::setPosition(const ofPoint & pos){

@@ -21,13 +21,15 @@ public:
 	void setPosition(const ofPoint & pos);
 	void setWidth(float width);
 	void setVSpacing(float vSpacing);
+	void repositionWidgets();
+	void setLeftMargin(float margin);
 
 private:
-	void repositionWidgets();
 
 	ofPoint pos;
 	float width;
 	float vSpacing;
+	float leftMargin;
 
 };
 }

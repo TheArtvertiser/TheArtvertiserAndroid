@@ -20,6 +20,7 @@ public:
 	~Grid();
 
 	void setPosition(const ofPoint & pos);
+	void setRectangle(const ofRectangle & rect);
 
 	void setCellSize(float cellW, float cellH);
 	void setSpacing(float hSpacing, float vspacing);
@@ -30,10 +31,10 @@ public:
 private:
 	void repositionWidgets();
 	void windowResized(ofResizeEventArgs & window);
-	ofPoint pos;
 	float cellWidth, cellHeight;
 	float hSpacing, vSpacing;
-
+	ofRectangle rect;
+	bool wholescreen;
 
 };
 }

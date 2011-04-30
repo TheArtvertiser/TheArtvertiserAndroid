@@ -8,43 +8,47 @@
 #include "CircularPB.h"
 #include "ofGraphics.h"
 #include "ofAppRunner.h"
+#include "ofMath.h"
 
 namespace gui{
 CircularPB::CircularPB( float radius )
 :radius(radius)
-,alphas(15)
+,alphas(radius+1)
 ,currentPos(0)
+,color(40,40,40)
 {
-	bigcircle.arc(0,0,radius,radius,0,360,15);
+	bigcircle.arc(0,0,0,radius,radius,0,360,radius);
 }
 
 void CircularPB::setRadius(float _radius){
 	radius = _radius;
-	rect.width = rect.height = radius;
-	bigcircle.arc(0,0,radius,radius,0,360,15);
+	rect.width = rect.height = radius*2;
+	bigcircle.clear();
+	bigcircle.arc(0,0,0,radius,radius,0,360,radius);
+	alphas.resize(bigcircle.size());
 }
 
 void CircularPB::update(){
-	currentPos = int(ofGetElapsedTimeMillis()*10*0.001)%15;
-	//alphas[currentPos] = 255;
-	/*for(int i=currentPos-1;i>=0;i--){
-		alphas[i] = MAX(255-(currentPos-i)*(255.f/4.f),0);
-	}
-	for(int i=currentPos+1;i<15;i++){
-		alphas[i] = 0;
-	}*/
+	currentPos = int(ofGetElapsedTimeMillis()*10*0.001)%bigcircle.size();
 
-	for(int i=0;i<15;i++){
-		alphas[i] = MAX(255-abs(currentPos-i)*(255.f/4.f),0);
+	for(int i=0;i<(int)bigcircle.size();i++){
+		float currentAngle = 360.f/float(bigcircle.size())*float(currentPos);
+		float iAngle = 360.f/float(bigcircle.size())*float(i);
+		float diff = abs(ofAngleDifferenceDegrees(iAngle,currentAngle));
+		//if(diff<0) diff=255;
+
+		alphas[i] = 255-diff*(255.f/(360.f/3.f));
 	}
 }
 
 void CircularPB::draw(){
-	for(int i=0;i<15;i++){
-		ofSetColor(190,190,190,alphas[i]);
+	ofPushStyle();
+	for(int i=0;i<(int)bigcircle.size();i++){
+		ofSetColor(color,alphas[i]);
 		ofPoint pos = bigcircle[i] + position;
-		ofCircle(pos,3);
+		ofCircle(pos,3+radius/25.f);
 	}
+	ofPopStyle();
 }
 
 void CircularPB::draw(float x, float y){
@@ -62,7 +66,15 @@ void CircularPB::setRect(const ofRectangle & _rect){
 	rect = _rect;
 	position.x = rect.x + rect.width*0.5;
 	position.y = rect.y + rect.height*0.5;
-	bigcircle.arc(0,0,rect.width,rect.height,0,360,15);
+	radius = rect.width*0.5;
+	bigcircle.clear();
+	bigcircle.arc(0,0,0,rect.width*0.5,rect.height*0.5,0,360,radius);
+	alphas.resize(bigcircle.size());
+}
+
+
+void CircularPB::setColor(const ofColor & _color){
+	color = _color;
 }
 
 ofRectangle CircularPB::getRect(){

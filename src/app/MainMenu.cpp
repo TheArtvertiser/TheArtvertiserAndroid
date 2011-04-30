@@ -10,7 +10,6 @@
 
 MainMenu::MainMenu()
 :circularPB(15)
-,doRefresh(false)
 {
 
 }
@@ -40,6 +39,7 @@ void MainMenu::enableEvents(){
 }
 
 void MainMenu::disableEvents(){
+	grid.clear();
 	cameraButton.disableEvents();
 	grid.disableEvents();
 }
@@ -47,55 +47,49 @@ void MainMenu::disableEvents(){
 void MainMenu::refresh(){
 	artverts = Artvert::listAll();
 	grid.clear();
-	snapshots.clear();
 	readyCache.resize(artverts.size());
 	for(int i=0; i<(int)artverts.size(); ++i){
-		/*snapshots[i].setRect(ofRectangle(i*76+20,40+56*3/4,56,56*3/4));*/
-		snapshots.push_back(ofPtr<gui::Button>(new gui::Button));
-		grid.addWidget(snapshots[i]);
-		ofAddListener(snapshots[i]->pressedE,this,&MainMenu::snapshotPressed);
+		ofPtr<gui::Button> button(new gui::Button);
+		grid.addWidget(button);
+		ofPtr<ofImage> resizedImg = iconCache->getResource(artverts[i].getCompressedImage().getAbsolutePath()+"Resized");
+		if(!resizedImg->bAllocated()){
+			resizedImg->setUseTexture(false);
+			resizedImg->loadImage(artverts[i].getCompressedImage());
+			resizedImg->resize(grid.getCellWidth(), grid.getCellHeight());
+		}
+		button->setFocusedIcon(*resizedImg);
+		button->setPressedIcon(*resizedImg);
+		if(!artverts[i].isReady()){
+			ofPtr<ofImage> bwImage;
+			bwImage = iconCache->getResource(artverts[i].getCompressedImage().getAbsolutePath()+"BW");
+			if(!bwImage->bAllocated()){
+				bwImage->setUseTexture(false);
+				*bwImage = *resizedImg;
+				bwImage->setImageType(OF_IMAGE_GRAYSCALE);
+			}
+			button->setIcon(*bwImage);
+		}else{
+			button->setIcon(*resizedImg);
+		}
+		ofAddListener(button->pressedE,this,&MainMenu::snapshotPressed);
 	}
-	doRefresh = true;
 }
 
 void MainMenu::update(){
-	if(doRefresh){
-		for(int i=0; i<(int)artverts.size(); ++i){
-			ofPtr<ofImage> img = iconCache.loadImage(artverts[i].getCompressedImage());
-			ofPtr<ofImage> resizedImg = iconCache.getResource(artverts[i].getCompressedImage().getAbsolutePath()+"Resized");
-			if(!resizedImg->bAllocated()){
-				*resizedImg = *img;
-				resizedImg->resize(grid.getCellWidth(), grid.getCellHeight());
-			}
-			snapshots[i]->setFocusedIcon(*resizedImg);
-			snapshots[i]->setPressedIcon(*resizedImg);
-			if(!artverts[i].isReady()){
-				ofPtr<ofImage> bwImage;
-				bwImage = iconCache.getResource(artverts[i].getCompressedImage().getAbsolutePath()+"BW");
-				if(!bwImage->bAllocated()){
-					*bwImage = *resizedImg;
-					bwImage->setImageType(OF_IMAGE_GRAYSCALE);
-				}
-				snapshots[i]->setIcon(*bwImage);
-			}else{
-				snapshots[i]->setIcon(*resizedImg);
-			}
-		}
-		doRefresh = false;
-	}
 	circularPB.update();
+	grid.update();
 	for(int i=0;i<(int)artverts.size();i++){
-		if(artverts[i].isReady()) readyCache[i] = true;
-		else readyCache[i] = false;
+		readyCache[i] = artverts[i].isReady();
 	}
 }
 
 void MainMenu::draw(){
 	cameraButton.draw();
+	grid.draw();
 	for(int i=0; i< (int)artverts.size(); i++){
-		snapshots[i]->draw();
 		if(!readyCache[i]){
-			circularPB.setRect(snapshots[i]->getRect());
+			gui::Button * button = (gui::Button*)grid[i].get();
+			circularPB.setPosition(ofPoint(button->getRect().x+button->getRect().width*0.5,button->getRect().y+button->getRect().height*0.5));
 			circularPB.draw();
 		}
 	}
@@ -108,9 +102,13 @@ void MainMenu::cameraPressed(bool & pressed){
 
 void MainMenu::snapshotPressed(const void * sender, bool & pressed){
 	cout <<  "snapshot pressed" << endl;
-	for(int i=0;i<(int)snapshots.size();i++){
-		if(snapshots[i].get()==sender){
+	for(int i=0;i<(int)grid.size();i++){
+		if(grid[i].get()==sender){
 			ofNotifyEvent(artvertSelectedE,artverts[i]);
 		}
 	}
+}
+
+void MainMenu::setIconCache(ofPtr<gui::IconCache> & _iconCache){
+	iconCache = _iconCache;
 }

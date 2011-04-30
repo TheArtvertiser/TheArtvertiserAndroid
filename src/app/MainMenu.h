@@ -32,6 +32,8 @@ public:
 	void cameraPressed(bool & pressed);
 	void snapshotPressed(const void * sender, bool & pressed);
 
+	void setIconCache(ofPtr<gui::IconCache> & iconCache);
+
 	void windowResized(ofResizeEventArgs & window);
 
 	ofEvent<bool> cameraPressedE;
@@ -39,15 +41,13 @@ public:
 
 private:
 	vector<Artvert> artverts;
-	vector<ofPtr<gui::Button> > snapshots;
 	vector<bool>	readyCache;
 
 	gui::CircularPB circularPB;
 	gui::Button		cameraButton;
 	gui::Grid		grid;
-	bool doRefresh;
 
-	gui::IconCache iconCache;
+	ofPtr<gui::IconCache> iconCache;
 };
 
 #endif /* MAINMENU_H_ */

@@ -13,6 +13,7 @@ namespace gui{
 VFrame::VFrame()
 :width(0)
 ,vSpacing(0)
+,leftMargin(0)
 {
 
 }
@@ -32,15 +33,22 @@ void VFrame::setVSpacing(float _vSpacing){
 	repositionWidgets();
 }
 
+
+void VFrame::setLeftMargin(float margin){
+	leftMargin = margin;
+}
+
 void VFrame::repositionWidgets(){
 	ofPoint nextPos(pos);
+	nextPos.x += leftMargin;
+	nextPos.y += vSpacing;
 	for(int i=0;i<(int)widgets.size();i++){
 		Widget * widget = widgets[i].get();
 		float ratio = widget->getAspectRatio();
 		float height = width/ratio;
 		widget->setRect(ofRectangle(nextPos.x,nextPos.y,width,height));
 
-		nextPos.y += height + vSpacing;
+		nextPos.y += widget->getRect().height + vSpacing;
 	}
 }
 

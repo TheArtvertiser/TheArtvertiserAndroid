@@ -190,6 +190,7 @@ ofxHttpResponse Comm::postAdvert(const Artvert & artvert){
 	form.addFormField("uid",artvert.getUID());
 	form.addFile("artvert",artvert.getCompressedImage().getAbsolutePath());
 	form.addFile("roi",artvert.getROIFile().getAbsolutePath());
+	form.addFile("location",artvert.getLocationFile().getAbsolutePath());
 	form.method = OFX_HTTP_POST;
 
 	return httpClient.submitForm(form);
@@ -201,6 +202,7 @@ void Comm::sendAdvert(const Artvert & artvert){
 	form.addFormField("uid",artvert.getUID());
 	form.addFile("artvert",artvert.getCompressedImage().getAbsolutePath());
 	form.addFile("roi",artvert.getROIFile().getAbsolutePath());
+	form.addFile("location",artvert.getLocationFile().getAbsolutePath());
 	form.method = OFX_HTTP_POST;
 
 	httpClient.addForm(form);

@@ -6,6 +6,7 @@
  */
 
 #include "Container.h"
+#include "DrawableContainer.h"
 
 namespace gui{
 
@@ -29,6 +30,22 @@ void Container::removeWidget(ofPtr<Widget> widget){
 	for(int i=0; i<(int)widgets.size(); i++){
 		if(widgets[i] == widget){
 			widget->disableEvents();
+			widgets.erase(widgets.begin()+i);
+			repositionWidgets();
+			return;
+		}
+	}
+}
+
+void Container::addDrawable(ofPtr<ofBaseDraws> drawable){
+	addWidget(ofPtr<DrawableContainer>(new DrawableContainer(drawable)));
+}
+
+void Container::removeDrawable(ofPtr<ofBaseDraws> drawable){
+	for(int i=0; i<(int)widgets.size(); i++){
+		std::tr1::shared_ptr<DrawableContainer> drw = std::tr1::dynamic_pointer_cast<DrawableContainer >(widgets[i]);
+		if(drw && drw->getDrawable()==drawable){
+			drw->disableEvents();
 			widgets.erase(widgets.begin()+i);
 			repositionWidgets();
 			return;

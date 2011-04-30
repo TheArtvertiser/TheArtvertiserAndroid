@@ -14,6 +14,7 @@ Grid::Grid()
 ,cellHeight(0)
 ,hSpacing(0)
 ,vSpacing(0)
+,wholescreen(true)
 {
 	ofAddListener(ofEvents.windowResized,this,&Grid::windowResized);
 }
@@ -23,7 +24,17 @@ Grid::~Grid(){
 }
 
 void Grid::setPosition(const ofPoint & _pos){
-	pos = _pos;
+	rect.x = _pos.x;
+	rect.y = _pos.y;
+	rect.width = ofGetWidth()-rect.x;
+	rect.height = ofGetHeight()-rect.y;
+	wholescreen = true;
+	repositionWidgets();
+}
+
+void Grid::setRectangle(const ofRectangle & _rect){
+	rect = _rect;
+	wholescreen = false;
 	repositionWidgets();
 }
 
@@ -40,15 +51,23 @@ void Grid::setSpacing(float _hSpacing, float _vSpacing){
 }
 
 void Grid::repositionWidgets(){
-	ofPoint nextPos(pos);
+	ofPoint nextPos(rect.x,rect.y);
 	for(int i=0;i<(int)widgets.size();i++){
 		Widget * widget = widgets[i].get();
-		float ratio = widget->getAspectRatio();
-		float height = cellWidth/ratio;
-		widget->setRect(ofRectangle(nextPos.x,nextPos.y,cellWidth,height));
 
-		if(nextPos.x + (cellWidth + hSpacing)*2 > ofGetWidth() - hSpacing){
-			nextPos.x = pos.x;
+		float ratio = widget->getAspectRatio();
+		float width,height;
+		if(ratio>1){
+			width = cellWidth;
+			height = width/ratio;
+		}else{
+			height = cellHeight;
+			width = height * ratio;
+		}
+
+		widget->setRect(ofRectangle(nextPos.x,nextPos.y,width,height));
+		if(nextPos.x + (cellWidth + hSpacing)*2 > rect.x + rect.width - hSpacing){
+			nextPos.x = rect.x;
 			nextPos.y += cellHeight + vSpacing;
 		}else{
 			nextPos.x += cellWidth + hSpacing;
@@ -57,6 +76,10 @@ void Grid::repositionWidgets(){
 }
 
 void Grid::windowResized(ofResizeEventArgs & window){
+	if(wholescreen){
+		rect.width = ofGetWidth()-rect.x;
+		rect.height = ofGetHeight()-rect.y;
+	}
 	repositionWidgets();
 }
 

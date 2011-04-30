@@ -3,3 +3,5 @@ ofxAndroid
 ofxAccelerometer
 ofxXmlSettings
 ofxThreadedImageLoader
+ofxThread
+ofxVectorMath

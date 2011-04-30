@@ -43,9 +43,9 @@ public class OFActivity extends Activity{
     
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-    	Log.i("OF","java keyback");
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            return OFAndroid.onBackPressed();
+        if ((keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)) {
+            if( OFAndroid.onBackPressed() ) return true;
+            else return super.onKeyUp(keyCode, event);
         }
         
         OFAndroid.onKeyUp(keyCode);

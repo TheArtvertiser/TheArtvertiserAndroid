@@ -10,7 +10,6 @@
 
 
 int main(){
-	ofSetLogLevel(OF_LOG_VERBOSE);
 #ifdef TARGET_ANDROID
 	ofPtr<ofAppAndroidWindow> window (new ofAppAndroidWindow);
 #else

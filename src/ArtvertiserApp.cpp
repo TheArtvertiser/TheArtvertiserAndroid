@@ -36,7 +36,7 @@ void ArtvertiserApp::setup(){
 	menu.setup();
 	menu.enableEvents();
 
-	geo = ofPtr<Geo>(new Geo);
+	geo = ofPtr<ofxGeoLocation>(new ofxGeoLocation);
 
 	artvertInfo.setIconCache(iconCache);
 	artvertInfo.setGeo(geo);

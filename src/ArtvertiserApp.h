@@ -8,7 +8,7 @@
 #include "MainMenu.h"
 #include "ArtvertInfo.h"
 #include "IconCache.h"
-#include "Geo.h"
+#include "ofxGeoLocation.h"
 
 								
 #ifdef TARGET_ANDROID
@@ -56,7 +56,7 @@
 		gui::CircularPB circularPB;
 
 		ofPtr<gui::IconCache> iconCache;
-		ofPtr<Geo> geo;
+		ofPtr<ofxGeoLocation> geo;
 
 		bool allocated;
 

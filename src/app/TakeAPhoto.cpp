@@ -26,7 +26,7 @@ TakeAPhoto::TakeAPhoto()
 
 }
 
-void TakeAPhoto::setGeo(ofPtr<Geo> & _geo){
+void TakeAPhoto::setGeo(ofPtr<ofxGeoLocation> & _geo){
 	geo = _geo;
 }
 

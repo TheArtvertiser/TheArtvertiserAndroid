@@ -14,7 +14,7 @@
 #include "Button.h"
 #include "VFrame.h"
 #include "ofxAndroidGPS.h"
-#include "Geo.h"
+#include "ofxGeoLocation.h"
 #include "ExpandablePanel.h"
 #include "Label.h"
 
@@ -22,7 +22,7 @@ class TakeAPhoto {
 public:
 	TakeAPhoto();
 
-	void setGeo(ofPtr<Geo> & geo);
+	void setGeo(ofPtr<ofxGeoLocation> & geo);
 
 	void setup(ofVideoGrabber & _video);
 	void start();
@@ -91,7 +91,7 @@ private:
 
 	ofPoint originalVideoAnchor;
 
-	ofPtr<Geo> geo;
+	ofPtr<ofxGeoLocation> geo;
 
 	ofPtr<gui::Label> address;
 	gui::ExpandablePanel geoPanel;

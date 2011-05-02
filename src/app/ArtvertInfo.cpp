@@ -22,14 +22,13 @@ ArtvertInfo::~ArtvertInfo() {
 	// TODO Auto-generated destructor stub
 }
 
-void ArtvertInfo::setGeo(ofPtr<Geo> & _geo){
+void ArtvertInfo::setGeo(ofPtr<ofxGeoLocation> & _geo){
 	geo = _geo;
 }
 
 void ArtvertInfo::show(Artvert & _artvert){
 	mutex.lock();
 	artvert = _artvert;
-
 
 	location = artvert.getLocation();
 	geo->setSize(ofGetWidth()/3.,ofGetWidth()/4.);
@@ -45,6 +44,15 @@ void ArtvertInfo::show(Artvert & _artvert){
 		float ratio = advert->getHeight()/advert->getWidth();
 		advert->resize(ofGetWidth()/3.,ofGetWidth()/3.*ratio);
 	}
+	quad.clear();
+	quad.addVertexes(artvert.getROI());
+	for(int i=0;i<quad.size();i++){
+		quad[i].x *= ofGetWidth()/3. / 640;
+		quad[i].y *= ofGetWidth()/3. / 640;
+		quad[i].x += 20;
+		quad[i].y += 20;
+	}
+	quad.close();
 
 	grid.clear();
 	grid.setRectangle(ofRectangle(ofGetWidth()/3.+40,50,ofGetWidth()-(ofGetWidth()/3.+60),ofGetHeight()));
@@ -97,6 +105,13 @@ void ArtvertInfo::update(){
 void ArtvertInfo::draw(){
 	mutex.lock();
 	advert->draw(20,20);
+
+	ofNoFill();
+	ofSetColor(0,255,0);
+	quad.draw();
+
+	ofFill();
+	ofSetColor(255,255,255);
 	geo->draw(20,ofGetHeight()-20-geo->getHeight());
 
 	if(artvert.isReady())
@@ -104,7 +119,7 @@ void ArtvertInfo::draw(){
 	else
 		ofDrawBitmapString("Waiting analisys",advert->getWidth()+40,30);
 
-	ofDrawBitmapString(geo->getAddress() ,20, advert->getHeight()+40);
+	ofDrawBitmapString(geo->getAddress() + ", " + geo->getCity() + " (" +geo->getCountry() +")",20, advert->getHeight()+40);
 
 	grid.draw();
 	mutex.unlock();

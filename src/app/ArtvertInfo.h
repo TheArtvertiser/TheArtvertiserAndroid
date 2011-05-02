@@ -12,13 +12,14 @@
 #include "ofImage.h"
 #include "Grid.h"
 #include "IconCache.h"
+#include "ofxGeoLocation.h"
 
 class ArtvertInfo {
 public:
 	ArtvertInfo();
 	virtual ~ArtvertInfo();
 
-	void setGeo(ofPtr<Geo> & geo);
+	void setGeo(ofPtr<ofxGeoLocation> & geo);
 
 	void show(Artvert & artvert);
 	void stop();
@@ -42,8 +43,9 @@ private:
 	ofPtr<gui::IconCache> iconCache;
 	vector<ofFile> artverts;
 	bool refresh;
-	ofPtr<Geo> geo;
+	ofPtr<ofxGeoLocation> geo;
 	ofMutex mutex;
+	ofPolyline quad;
 };
 
 #endif /* ARTVERTINFO_H_ */

@@ -9,6 +9,7 @@
 #include "ArtvertInfo.h"
 #include "IconCache.h"
 #include "ofxGeoLocation.h"
+#include "OnlineArtverts.h"
 
 								
 #ifdef TARGET_ANDROID
@@ -36,6 +37,7 @@
 		void gotAnalysis(const Artvert & artvert);
 
 		void cameraPressed(bool & pressed);
+		void downloadPressed(bool & pressed);
 		void advertSelected(Artvert & artvert);
 		void artvertSelected(ofFile & artvert);
 
@@ -47,6 +49,7 @@
 		Comm comm;
 		MainMenu menu;
 		ArtvertInfo artvertInfo;
+		OnlineArtverts onlineArtverts;
 
 		ofImage ofimg, subs_img;
 		int counter;
@@ -64,6 +67,7 @@
 
 		enum State{
 			Menu,
+			OnlineList,
 			Photo,
 			Info,
 			Tracking

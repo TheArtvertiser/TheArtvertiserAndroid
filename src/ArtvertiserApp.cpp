@@ -1,6 +1,7 @@
 #include "ArtvertiserApp.h"
 #include "Artvert.h"
 #include "PersistanceEngine.h"
+#include "Label.h"
 
 int camW = 640;
 int camH = 480;
@@ -50,6 +51,8 @@ void ArtvertiserApp::setup(){
 	comm.setURL("http://192.168.1.35:8888");
 	comm.start();
 
+	onlineArtverts.setURL("http://192.168.1.35:8888");
+
 	circularPB.setRadius(30);
 	circularPB.setColor(ofColor(190,190,190));
 	circularPB.setPosition(ofPoint(grabber.getWidth()*0.5,ofGetHeight()*0.5));
@@ -59,10 +62,16 @@ void ArtvertiserApp::setup(){
 
 	ofAddListener(takeAPhoto.exitE,this,&ArtvertiserApp::appFinished);
 	ofAddListener(takeAPhoto.newPhotoE,this,&ArtvertiserApp::newPhoto);
+
 	ofAddListener(comm.gotAnalysisE,this,&ArtvertiserApp::gotAnalysis);
+
 	ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
-	ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
+	ofAddListener(menu.downloadPressedE,this,&ArtvertiserApp::downloadPressed);
 	ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::advertSelected);
+
+	ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
+
+	ofSetLogLevel(OF_LOG_VERBOSE);
 }
 
 //--------------------------------------------------------------
@@ -74,6 +83,9 @@ void ArtvertiserApp::update(){
 	case Photo:
 		grabber.update();
 		takeAPhoto.update();
+		break;
+	case OnlineList:
+		onlineArtverts.update();
 		break;
 	case Info:
 		artvertInfo.update();
@@ -102,6 +114,9 @@ void ArtvertiserApp::draw(){
 		break;
 	case Photo:
 		takeAPhoto.draw();
+		break;
+	case OnlineList:
+		onlineArtverts.draw();
 		break;
 	case Info:
 		artvertInfo.draw();
@@ -203,6 +218,13 @@ void ArtvertiserApp::cameraPressed(bool & pressed){
 }
 
 //--------------------------------------------------------------
+void ArtvertiserApp::downloadPressed(bool & pressed){
+	state = OnlineList;
+	onlineArtverts.start();
+	menu.disableEvents();
+}
+
+//--------------------------------------------------------------
 void ArtvertiserApp::artvertSelected(ofFile & artvertimg){
 	subs_img.setUseTexture(false);
 	subs_img.loadImage(artvertimg);
@@ -237,6 +259,15 @@ bool ArtvertiserApp::backPressed(){
 	switch(state){
 	case Menu:
 		return false;
+		break;
+	case OnlineList:
+		if(!onlineArtverts.back()){
+			onlineArtverts.stop();
+			menu.refresh();
+			menu.enableEvents();
+			state = Menu;
+		}
+		return true;
 		break;
 	case Photo:
 		takeAPhoto.stop();

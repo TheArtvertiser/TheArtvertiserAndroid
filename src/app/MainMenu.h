@@ -16,6 +16,7 @@
 #include "Button.h"
 #include "Grid.h"
 #include "IconCache.h"
+#include "VFrame.h"
 
 class MainMenu {
 public:
@@ -30,6 +31,7 @@ public:
 	void draw();
 
 	void cameraPressed(bool & pressed);
+	void downloadPressed(bool & pressed);
 	void snapshotPressed(const void * sender, bool & pressed);
 
 	void setIconCache(ofPtr<gui::IconCache> & iconCache);
@@ -37,6 +39,7 @@ public:
 	void windowResized(ofResizeEventArgs & window);
 
 	ofEvent<bool> cameraPressedE;
+	ofEvent<bool> downloadPressedE;
 	ofEvent<Artvert> artvertSelectedE;
 
 private:
@@ -44,7 +47,9 @@ private:
 	vector<bool>	readyCache;
 
 	gui::CircularPB circularPB;
-	gui::Button		cameraButton;
+	ofPtr<gui::Button>		cameraButton;
+	ofPtr<gui::Button>		downloadButton;
+	gui::VFrame		menu;
 	gui::Grid		grid;
 
 	ofPtr<gui::IconCache> iconCache;

@@ -19,30 +19,42 @@ void MainMenu::setup(){
 
 	ofImage cameraIcon;
 	cameraIcon.loadImage("icons/camera.png");
-	cameraButton.setIcon(cameraIcon);
-	cameraButton.setPosition(ofPoint(ofGetWidth()-cameraIcon.getWidth()-20,20));
-	ofAddListener(cameraButton.pressedE,this,&MainMenu::cameraPressed);
+
+	menu.setPosition(ofPoint(ofGetWidth()-cameraIcon.getWidth()-20,20));
+	menu.setWidth(cameraIcon.getWidth());
+
+	cameraButton = ofPtr<gui::Button>(new gui::Button);
+	cameraButton->setIcon(cameraIcon);
+	ofAddListener(cameraButton->pressedE,this,&MainMenu::cameraPressed);
+	menu.addWidget(cameraButton);
+
+	ofImage downloadIcon("icons/download.png");
+
+	downloadButton = ofPtr<gui::Button>(new gui::Button);
+	downloadButton->setIcon(downloadIcon);
+	ofAddListener(downloadButton->pressedE,this,&MainMenu::downloadPressed);
+	menu.addWidget(downloadButton);
 
 	//grid.setPosition(ofPoint(20, 20));
 	grid.setCellSize(cameraIcon.getWidth()*1.4, cameraIcon.getWidth()*1.4*3./4.);
 	grid.setSpacing(20,20);
-	grid.setRectangle(ofRectangle(20,20,cameraButton.getRect().x-5,ofGetHeight()));
+	grid.setRectangle(ofRectangle(20,20,cameraButton->getRect().x-5,ofGetHeight()));
 	refresh();
 }
 
 void MainMenu::windowResized(ofResizeEventArgs & window){
-	cameraButton.setPosition(ofPoint(ofGetWidth()-cameraButton.getRect().width-20,20));
-	grid.setRectangle(ofRectangle(20,20,cameraButton.getRect().x-5,ofGetHeight()));
+	menu.setPosition(ofPoint(ofGetWidth()-cameraButton->getRect().width-20,20));
+	grid.setRectangle(ofRectangle(20,20,cameraButton->getRect().x-5,ofGetHeight()));
 }
 
 void MainMenu::enableEvents(){
-	cameraButton.enableEvents();
+	menu.enableEvents();
 	grid.enableEvents();
 }
 
 void MainMenu::disableEvents(){
 	grid.clear();
-	cameraButton.disableEvents();
+	menu.disableEvents();
 	grid.disableEvents();
 }
 
@@ -80,13 +92,14 @@ void MainMenu::refresh(){
 void MainMenu::update(){
 	circularPB.update();
 	grid.update();
+	menu.update();
 	for(int i=0;i<(int)artverts.size();i++){
 		readyCache[i] = artverts[i].isReady();
 	}
 }
 
 void MainMenu::draw(){
-	cameraButton.draw();
+	menu.draw();
 	grid.draw();
 	for(int i=0; i< (int)artverts.size(); i++){
 		if(!readyCache[i]){
@@ -100,6 +113,11 @@ void MainMenu::draw(){
 void MainMenu::cameraPressed(bool & pressed){
 	bool yes=true;
 	ofNotifyEvent(cameraPressedE,yes);
+}
+
+void MainMenu::downloadPressed(bool & pressed){
+	bool yes=true;
+	ofNotifyEvent(downloadPressedE,yes);
 }
 
 void MainMenu::snapshotPressed(const void * sender, bool & pressed){

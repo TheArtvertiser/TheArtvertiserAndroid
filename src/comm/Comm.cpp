@@ -39,9 +39,9 @@ bool Comm::checkUploaded(Artvert & artvert){
 	ofxHttpResponse response = httpClient.submitForm(form);
 
 	if(response.status==200){
-		ofLog(OF_LOG_VERBOSE,"Comm:: " + artvert.getUID() + " already uploaded ");
+		ofLogVerbose("Comm", artvert.getUID() + " already uploaded ");
 	}else{
-		ofLog(OF_LOG_VERBOSE,"Comm:: " + artvert.getUID() + " not uploaded yet ");
+		ofLogVerbose("Comm", artvert.getUID() + " not uploaded yet ");
 	}
 
 	return response.status == 200;
@@ -51,7 +51,7 @@ bool Comm::checkAnalized(Artvert & artvert){
 	ofxHttpForm form;
 	form.action = url+"/checkanalized.of";
 	form.addFormField("uid",artvert.getUID());
-	ofLog(OF_LOG_VERBOSE,"checking analized " + artvert.getUID());
+	ofLogVerbose("Comm", "checking analized " + artvert.getUID());
 	ofxHttpResponse response = httpClient.submitForm(form);
 	return response.status==200;
 }
@@ -60,7 +60,7 @@ void Comm::downloadArtvert(Artvert & artvert){
 	if(!artvert.getCompressedImage().exists()){
 		ofxHttpResponse resp_compressed = httpClient.getUrl(url+"/"+artvert.getUID()+".jpg");
 		if(resp_compressed.status==200){
-			ofLog(OF_LOG_VERBOSE,"got jpg correctly, saving " + ofToString(resp_compressed.responseBody.size()) + " bytes");
+			ofLogVerbose("Comm", "got jpg correctly, saving " + ofToString(resp_compressed.responseBody.size()) + " bytes");
 			ofFile & compressed = artvert.getCompressedImage();
 			compressed.changeMode(ofFile::WriteOnly,true);
 			compressed << resp_compressed.responseBody;
@@ -76,7 +76,7 @@ void Comm::downloadArtvert(Artvert & artvert){
 	if(!artvert.getROIFile().exists()){
 		ofxHttpResponse resp_roi = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.roi");
 		if(resp_roi.status==200){
-			ofLog(OF_LOG_VERBOSE,"got roi correctly, saving " + ofToString(resp_roi.responseBody.size()) + " bytes");
+			ofLogVerbose("Comm", "got roi correctly, saving " + ofToString(resp_roi.responseBody.size()) + " bytes");
 			ofFile & roi = artvert.getROIFile();
 			roi.changeMode(ofFile::WriteOnly,true);
 			roi << resp_roi.responseBody;
@@ -87,7 +87,7 @@ void Comm::downloadArtvert(Artvert & artvert){
 	if(!artvert.getDetectorData().exists()){
 		ofxHttpResponse resp_detector = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.detector_data");
 		if(resp_detector.status==200){
-			ofLog(OF_LOG_VERBOSE,"got detector data correctly, saving " + ofToString(resp_detector.responseBody.size()) + " bytes");
+			ofLogVerbose("Comm", "got detector data correctly, saving " + ofToString(resp_detector.responseBody.size()) + " bytes");
 			ofFile & detectorData = artvert.getDetectorData();
 			detectorData.changeMode(ofFile::WriteOnly,true);
 			detectorData << resp_detector.responseBody;
@@ -98,7 +98,7 @@ void Comm::downloadArtvert(Artvert & artvert){
 	if(!artvert.getTrackerData().exists()){
 		ofxHttpResponse resp_tracker = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.tracker_data");
 		if(resp_tracker.status==200){
-			ofLog(OF_LOG_VERBOSE,"got tracker data correctly, saving " + ofToString(resp_tracker.responseBody.size()) + " bytes");
+			ofLogVerbose("Comm", "got tracker data correctly, saving " + ofToString(resp_tracker.responseBody.size()) + " bytes");
 			ofFile & trackerData = artvert.getTrackerData();
 			trackerData.changeMode(ofFile::WriteOnly,true);
 			trackerData << resp_tracker.responseBody;
@@ -109,7 +109,7 @@ void Comm::downloadArtvert(Artvert & artvert){
 }
 
 void Comm::downloadAnalisys(Artvert & artvert){
-	ofLog(OF_LOG_VERBOSE,"downloading analysis for " + artvert.getUID());
+	ofLogVerbose("Comm", "downloading analysis for " + artvert.getUID());
 	if(!artvert.getDetectorData().exists()){
 		if(artvert.getAliasUID()!=""){
 			Artvert alias = artvert.getAlias();
@@ -119,13 +119,13 @@ void Comm::downloadAnalisys(Artvert & artvert){
 
 		ofxHttpResponse resp_detector = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.detector_data");
 		if(resp_detector.status==200){
-			ofLog(OF_LOG_VERBOSE,"got detector data correctly, saving " + ofToString(resp_detector.responseBody.size()) + " bytes");
+			ofLogVerbose("Comm", "got detector data correctly, saving " + ofToString(resp_detector.responseBody.size()) + " bytes");
 			ofFile & detectorData = artvert.getDetectorData();
 			detectorData.changeMode(ofFile::WriteOnly,true);
 			detectorData << resp_detector.responseBody;
 			detectorData.changeMode(ofFile::ReadOnly,true);
 		}else if(resp_detector.status==301){
-			ofLog(OF_LOG_VERBOSE,"got detector redirection " + resp_detector.location);
+			ofLogVerbose("Comm", "got detector redirection " + resp_detector.location);
 			string aliasUID = ofFilePath::getBaseName(ofFilePath::getBaseName(resp_detector.location));
 			artvert.setAliasUID(aliasUID);
 
@@ -141,7 +141,7 @@ void Comm::downloadAnalisys(Artvert & artvert){
 	if(!artvert.getTrackerData().exists()){
 		ofxHttpResponse resp_tracker = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.tracker_data");
 		if(resp_tracker.status==200){
-			ofLog(OF_LOG_VERBOSE,"got tracker data correctly, saving " + ofToString(resp_tracker.responseBody.size()) + " bytes");
+			ofLogVerbose("Comm", "got tracker data correctly, saving " + ofToString(resp_tracker.responseBody.size()) + " bytes");
 			ofFile & trackerData = artvert.getTrackerData();
 			trackerData.changeMode(ofFile::WriteOnly,true);
 			trackerData << resp_tracker.responseBody;
@@ -157,7 +157,7 @@ void Comm::threadedFunction(){
 		if(!artverts[i].isReady() && !checkUploaded(artverts[i])){
 			ofxHttpResponse response = postAdvert(artverts[i]);
 			if(response.status!=200){
-				ofLog(OF_LOG_ERROR,"error sending " + artverts[i].getUID() + ":  " + response.reasonForStatus);
+				ofLogError("Comm", "error sending " + artverts[i].getUID() + ":  " + response.reasonForStatus);
 			}
 		}
 	}
@@ -169,7 +169,7 @@ void Comm::threadedFunction(){
 				if(!checkUploaded(artverts[i])){
 					ofxHttpResponse response = postAdvert(artverts[i]);
 					if(response.status!=200){
-						ofLog(OF_LOG_ERROR,"error sending " + artverts[i].getUID() + ":  " + response.reasonForStatus);
+						ofLogError("Comm", "error sending " + artverts[i].getUID() + ":  " + response.reasonForStatus);
 					}
 				}
 				if(checkAnalized(artverts[i])){
@@ -210,13 +210,13 @@ void Comm::sendAdvert(const Artvert & artvert){
 }
 
 void Comm::newResponse(ofxHttpResponse & response){
-	cout << "new response " << response.url << endl;
+	ofLogVerbose("Comm") << "new response " << response.url << endl;
 	if(response.status!=200){
-		cerr << "error response: " << response.status << ":" << response.reasonForStatus << endl;
-		cout << response.responseBody << endl;
+		ofLogError("Comm") <<  "error response: " << response.status << ":" << response.reasonForStatus << endl;
+		ofLogVerbose("Comm") <<  ofVec3f(3,2,1);// << response.responseBody << endl;
 		return;
 	}else{
-		cout << "correct response: " << response.status <<  + " " + response.url << endl;
+		ofLogVerbose("Comm") <<  "correct response: " << response.status <<  + " " + response.url << endl;
 		//cout << response.responseBody << endl;
 		return;
 	}

@@ -13,6 +13,16 @@ void ArtvertiserApp::setup(){
 	ofBackground(66,51,51);
 	ofEnableAlphaBlending();
 
+	ofSetLogLevel("ArtvertiserApp",OF_LOG_VERBOSE);
+	vector<Artvert> artverts = Artvert::listAll();
+	ofLogVerbose("ArtvertiserApp","checking artverts integrity");
+	for(int i=0; i<(int)artverts.size(); i++){
+		if(!artverts[i].checkIntegrity()){
+			ofLogError("ArtvertiserApp") << "found corrupt or incomplete advert " << artverts[i].getUID() << " deleting";
+			artverts[i].remove();
+		}
+	}
+
 	refreshArtvert = false;
 
 #ifdef TARGET_ANDROID

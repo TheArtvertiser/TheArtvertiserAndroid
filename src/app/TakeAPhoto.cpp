@@ -9,6 +9,7 @@
 
 #include "ofAppRunner.h"
 #include "ofGraphics.h"
+#include "Artvert.h"
 
 TakeAPhoto::TakeAPhoto()
 :video(NULL)
@@ -177,19 +178,31 @@ void TakeAPhoto::updateState(Transition transition){
 			state = TakingPhoto;
 
 			ofDirectory("adverts").create();
-			string filename = ofGetTimestampString("%Y%m%d_%H%M%S%i");
-			photo.saveImage("adverts/" + filename+".jpg",OF_IMAGE_QUALITY_BEST);
 
-			ofFile roi("adverts/" + filename+".bmp.roi",ofFile::WriteOnly);
+			string filename = ofGetTimestampString("%Y%m%d_%H%M%S%i");
+			Artvert advert(filename,"adverts");
+
+			photo.saveImage(advert.getCompressedImage(),OF_IMAGE_QUALITY_BEST);
+
+			ofFile roi = advert.getROIFile();
+			roi.changeMode(ofFile::WriteOnly);
 			for(int i=0;i<4;i++){
 				roi << (int)warp.getQuad()[i].x << " " << (int)warp.getQuad()[i].y << endl;
 			}
 			roi.close();
 
-			ofFile location("adverts/"+ filename + ".bmp.location",ofFile::WriteOnly);
+			ofFile location = advert.getLocationFile();
+			location.changeMode(ofFile::WriteOnly);
 			ofxLocation loc = geo->getLocation();
 			location << loc;
 			location.close();
+
+			ofFile md5 = advert.getMD5File();
+			md5.changeMode(ofFile::WriteOnly);
+			ofxMD5Signature md5sig = advert.generateMD5();
+			md5 << md5sig;
+			md5.close();
+
 
 			ofNotifyEvent(newPhotoE,filename,this);
 		}

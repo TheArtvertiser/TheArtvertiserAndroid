@@ -2,7 +2,7 @@ bin/cc
 bin/classes
 bin/libs
 bin/androidFerns
-bin/abdroidFerns_debug
+bin/androidFerns_debug
 bin/data/adverts/*
 bin/data/testdata/*
 obj

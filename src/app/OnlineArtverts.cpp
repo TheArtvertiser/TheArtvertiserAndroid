@@ -132,21 +132,21 @@ void OnlineArtverts::listCountries(){
 	state = Countries;
 	list.disableEvents();
 	loading = true;
-	ofLoadURLAsync(url+"/listcountries.of","listcountries");
+	urlLoader.getAsync(url+"/listcountries.of","listcountries");
 }
 
 void OnlineArtverts::listCities(const string & country){
 	state = Cities;
 	list.disableEvents();
 	loading = true;
-	ofLoadURLAsync(url+"/listcities.of?country=" + country,"listcities");
+	urlLoader.getAsync(url+"/listcities.of?country=" + country,"listcities");
 }
 
 void OnlineArtverts::listRoads(const string & country, const string & city){
 	state = Roads;
 	list.disableEvents();
 	loading = true;
-	ofLoadURLAsync(url+"/listroads.of?country=" +country+ "&city="+city ,"listroads");
+	urlLoader.getAsync(url+"/listroads.of?country=" +country+ "&city="+city ,"listroads");
 }
 
 void OnlineArtverts::countrySelected(const void * sender, bool & pressed){

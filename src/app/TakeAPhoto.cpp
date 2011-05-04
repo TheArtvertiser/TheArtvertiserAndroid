@@ -112,9 +112,7 @@ void TakeAPhoto::initWarp(){
 }
 
 void TakeAPhoto::windowResized(ofResizeEventArgs & window){
-	ofLog(OF_LOG_ERROR,"TakeAPhoto window resized " + ofToString(window.width) + "," + ofToString(window.height));
 	if(!video || video->getWidth()==0 || video->getHeight()==0) return;
-	ofLog(OF_LOG_ERROR,"TakeAPhoto resizing");
 	initWarp();
 
 	int borderX = window.width*0.5 + videoWidth*0.5 + yesIcon.getWidth()*0.1;
@@ -125,6 +123,7 @@ void TakeAPhoto::windowResized(ofResizeEventArgs & window){
 
 void TakeAPhoto::updateState(Transition transition){
 	if(transition==Stop){
+		ofLogVerbose("TakeAPhoto","stopping");
 		video->resetAnchor();
 		borderFrame.disableEvents();
 		state = Init;
@@ -138,6 +137,7 @@ void TakeAPhoto::updateState(Transition transition){
 	switch(state){
 	case Init:
 		if(transition==Start){
+			ofLogVerbose("TakeAPhoto","starting");
 			borderFrame.clear();
 			borderFrame.addWidget(cameraButton);
 			borderFrame.addWidget(exitButton);
@@ -152,6 +152,7 @@ void TakeAPhoto::updateState(Transition transition){
 
 	case TakingPhoto:
 		if(transition==PhotoPressed){
+			ofLogVerbose("TakeAPhoto","photo pressed");
 			borderFrame.clear();
 			state = PhotoTaken;
 		}
@@ -159,6 +160,7 @@ void TakeAPhoto::updateState(Transition transition){
 
 	case PhotoTaken:
 		if(transition==UpdatedImage){
+			ofLogVerbose("TakeAPhoto","photo stored in memory");
 			warp.enableEvents();
 			initWarp();
 			borderFrame.addWidget(yesButton);
@@ -180,9 +182,14 @@ void TakeAPhoto::updateState(Transition transition){
 			ofDirectory("adverts").create();
 
 			string filename = ofGetTimestampString("%Y%m%d_%H%M%S%i");
-			Artvert advert(filename,"adverts");
+
+			ofLogVerbose("TakeAPhoto","advert complete " + filename);
+			Artvert advert(filename,"adverts/");
 
 			photo.saveImage(advert.getCompressedImage(),OF_IMAGE_QUALITY_BEST);
+			photo.saveImage(advert.getModel(),OF_IMAGE_QUALITY_BEST);
+
+			ofLogVerbose("TakeAPhoto","image saved");
 
 			ofFile roi = advert.getROIFile();
 			roi.changeMode(ofFile::WriteOnly);
@@ -191,22 +198,30 @@ void TakeAPhoto::updateState(Transition transition){
 			}
 			roi.close();
 
+			ofLogVerbose("TakeAPhoto","roi saved");
+
 			ofFile location = advert.getLocationFile();
 			location.changeMode(ofFile::WriteOnly);
 			ofxLocation loc = geo->getLocation();
 			location << loc;
 			location.close();
 
+			ofLogVerbose("TakeAPhoto") << "location stored: " << loc;
+
 			ofFile md5 = advert.getMD5File();
 			md5.changeMode(ofFile::WriteOnly);
-			ofxMD5Signature md5sig = advert.generateMD5();
+			string md5sig = advert.generateMD5();
 			md5 << md5sig;
 			md5.close();
 
+			ofLogVerbose("TakeAPhoto") << "md5 stored: " << md5sig;
 
-			ofNotifyEvent(newPhotoE,filename,this);
+
+
+			ofNotifyEvent(newPhotoE,advert,this);
 		}
 		if(transition==NoPressed){
+			ofLogVerbose("TakeAPhoto","photo cancelled");
 			warp.disableEvents();
 			borderFrame.clear();
 			borderFrame.addWidget(cameraButton);

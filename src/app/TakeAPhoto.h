@@ -13,10 +13,14 @@
 #include "Warping.h"
 #include "Button.h"
 #include "VFrame.h"
-#include "ofxAndroidGPS.h"
 #include "ofxGeoLocation.h"
 #include "ExpandablePanel.h"
 #include "Label.h"
+#include "Artvert.h"
+
+#ifdef TARGET_ANDROID
+#include "ofxAndroidGPS.h"
+#endif
 
 class TakeAPhoto {
 public:
@@ -52,7 +56,7 @@ public:
 
 	void newFrame(ofPixels & newFrame);
 
-	ofEvent<string> newPhotoE;
+	ofEvent<Artvert> newPhotoE;
 	ofEvent<bool> exitE;
 
 private:

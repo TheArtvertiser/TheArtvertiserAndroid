@@ -53,7 +53,7 @@ void MainMenu::enableEvents(){
 }
 
 void MainMenu::disableEvents(){
-	grid.clear();
+	//grid.clear();
 	menu.disableEvents();
 	grid.disableEvents();
 }
@@ -73,7 +73,7 @@ void MainMenu::refresh(){
 		}
 		button->setFocusedIcon(*resizedImg);
 		button->setPressedIcon(*resizedImg);
-		if(!artverts[i].isReady()){
+		if(!artverts[i].isReady() || !artverts[i].checkIntegrity()){
 			ofPtr<ofImage> bwImage;
 			bwImage = iconCache->getResource(artverts[i].getCompressedImage().getAbsolutePath()+"BW");
 			if(!bwImage->bAllocated()){
@@ -101,7 +101,7 @@ void MainMenu::update(){
 void MainMenu::draw(){
 	menu.draw();
 	grid.draw();
-	for(int i=0; i< (int)artverts.size(); i++){
+	for(int i=0; i< (int)grid.size(); i++){
 		if(!readyCache[i]){
 			gui::Button * button = (gui::Button*)grid[i].get();
 			circularPB.setPosition(ofPoint(button->getRect().x+button->getRect().width*0.5,button->getRect().y+button->getRect().height*0.5));

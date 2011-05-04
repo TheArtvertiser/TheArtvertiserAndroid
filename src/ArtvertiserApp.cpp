@@ -18,8 +18,15 @@ void ArtvertiserApp::setup(){
 	ofLogVerbose("ArtvertiserApp","checking artverts integrity");
 	for(int i=0; i<(int)artverts.size(); i++){
 		if(!artverts[i].checkIntegrity()){
-			ofLogError("ArtvertiserApp") << "found corrupt or incomplete advert " << artverts[i].getUID() << " deleting";
-			artverts[i].remove();
+			ofLogVerbose("ArtvertiserApp") << "found corrupt or incomplete advert " << artverts[i].getUID() << " deleting";
+			string generated = artverts[i].generateMD5();
+			string stored = artverts[i].getStoredMD5();
+			ofLogVerbose("ArtvertiserApp") << "generated md5 " << artverts[i].generateMD5();
+			ofLogVerbose("ArtvertiserApp") << "stored    md5 " << artverts[i].getStoredMD5();
+			artverts[i].removeAnalisys();
+			ofFile md5(artverts[i].getMD5File().path(),ofFile::WriteOnly);
+			md5 << artverts[i].generateMD5();
+			md5.close();
 		}
 	}
 
@@ -88,6 +95,11 @@ void ArtvertiserApp::setup(){
 void ArtvertiserApp::update(){
 	switch(state){
 	case Menu:
+		if(refreshMenu){
+			menu.refresh();
+			menu.enableEvents();
+			refreshMenu = false;
+		}
 		menu.update();
 		break;
 	case Photo:
@@ -192,22 +204,23 @@ void ArtvertiserApp::windowResized(int w, int h){
 
 //--------------------------------------------------------------
 
-void ArtvertiserApp::newPhoto(const void * sender, string & filename ){
+void ArtvertiserApp::newPhoto(const void * sender, Artvert & artvert ){
+	ofLogVerbose("ArtvertiserApp") << "new photo: " << artvert.getUID();
 	if(sender==&takeAPhoto){
-		Artvert artvert(filename);
+
 		artvert.save();
 		PersistanceEngine::save();
 
+		ofLogVerbose("ArtvertiserApp") << "sender correct";
+
 		comm.sendAdvert(artvert);
-		takeAPhoto.getPhoto().saveImage("adverts/"+filename+".bmp");
 	}
 }
 
 //--------------------------------------------------------------
 void ArtvertiserApp::appFinished(const void * sender,bool & finished){
 	if(sender==&takeAPhoto){
-		menu.refresh();
-		menu.enableEvents();
+		refreshMenu = true;
 		state = Menu;
 	}
 }
@@ -215,8 +228,7 @@ void ArtvertiserApp::appFinished(const void * sender,bool & finished){
 //--------------------------------------------------------------
 void ArtvertiserApp::gotAnalysis(const Artvert & artvert){
 	if(state==Menu){
-		menu.refresh();
-		menu.enableEvents();
+		refreshMenu = true;
 	}
 }
 

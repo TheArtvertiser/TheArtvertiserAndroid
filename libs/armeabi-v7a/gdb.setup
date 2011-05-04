@@ -1,3 +1,22 @@
-set solib-search-path /home/arturo/workspace/ofxAndroid/bin/ndk/local/armeabi
-directory /home/arturo/Descargas/android-ndk-r3-crystax/build/platforms/android-5/arch-arm/usr/include
-directory /home/arturo/workspace/ofxAndroid/jni
+set solib-search-path /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/obj/local/armeabi:/home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/libs/armeabi
+directory /home/arturo/Descargas/android-ndk-r5b/platforms/android-8/arch-arm/usr/include
+directory /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/src 
+directory /home/arturo/Descargas/android-ndk-r5b/sources/cxx-stl/system
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks/app
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks/events
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks/graphics
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks/sound
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks/utils
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks/video
+directory /home/arturo/Escritorio/openFrameworks/libs/openFrameworks
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxAccelerometer/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxAndroid/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxDirList/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxNetwork/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxOpenCv/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxOsc/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxThread/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxVectorMath/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxXmlSettings/src
+directory /home/arturo/Escritorio/openFrameworks/addons/ofxVectorGraphics/src
+directory /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/libs/armeabi

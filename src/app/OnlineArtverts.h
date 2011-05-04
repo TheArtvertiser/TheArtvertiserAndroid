@@ -56,6 +56,8 @@ private:
 
 	gui::CircularPB circularPB;
 	bool loading;
+
+	ofURLFileLoader urlLoader;
 };
 
 #endif /* ONLINEARTVERTS_H_ */

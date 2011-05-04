@@ -33,7 +33,7 @@
 		void windowResized(int w, int h);
 
 		void appFinished(const void * sender, bool & finished);
-		void newPhoto(const void * sender, string & filename);
+		void newPhoto(const void * sender, Artvert & filename);
 		void gotAnalysis(const Artvert & artvert);
 
 		void cameraPressed(bool & pressed);
@@ -64,6 +64,7 @@
 		bool allocated;
 
 		bool refreshArtvert;
+		bool refreshMenu;
 
 		enum State{
 			Menu,

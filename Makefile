@@ -190,7 +190,7 @@ ifeq ($(ARCH),android)
 	ifeq ($(findstring Debug,$(MAKECMDGOALS)),Debug)
 		TARGET = libs/armeabi/libOFAndroidApp.so
 		TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(ARCH)/libopenFrameworksDebug.a
-		LDFLAGS += -Wl,--fix-cortex-a8 -shared
+		LDFLAGS +=  -shared
 	endif
 
 	ifeq ($(findstring Release,$(MAKECMDGOALS)),Release)
@@ -210,7 +210,7 @@ ifeq ($(ARCH),android)
 	ifeq ($(findstring TestLink,$(MAKECMDGOALS)),TestLink)
 		TARGET_NAME = Debug
 		TARGET_LIBS = $(OF_ROOT)/libs/openFrameworksCompiled/lib/$(ARCH)/libopenFrameworksDebug.a
-		LDFLAGS += -Wl,--entry=main,--fix-cortex-a8
+		LDFLAGS += -Wl,--entry=main
 	    BIN_NAME = $(APPNAME)
 	    TARGET = obj/$(BIN_NAME)
 	endif

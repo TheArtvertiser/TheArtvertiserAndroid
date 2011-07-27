@@ -43,4 +43,4 @@ USER_SOURCE_DIR = ../artvertiserCommon
 # you shouldn't need to change this for usual OF apps, it allows to exclude code from some directories
 # useful if you have some code for reference in the project folder but don't want it to be compiled
 
-EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj"
+EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj,src/ofxHttpUtils/example,.git"

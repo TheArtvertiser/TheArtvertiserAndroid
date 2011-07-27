@@ -84,6 +84,26 @@ void Comm::downloadArtvert(Artvert & artvert){
 		}
 	}
 
+	if(!artvert.getMD5File().exists()){
+		ofxHttpResponse resp_md5 = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.md5.notready");
+		if(resp_md5.status==200){
+			ofLogVerbose("Comm", "got md5 correctly, saving " + ofToString(resp_md5.responseBody.size()) + " bytes");
+			ofFile md5(artvert.getMD5File().path()+".notready");
+			md5.changeMode(ofFile::WriteOnly,true);
+			md5 << resp_md5.responseBody;
+			md5.close();
+			md5.moveTo(artvert.getMD5File().path());
+			if(!artvert.checkIntegrity()){
+				ofLogWarning("Comm", "error md5 doesn't match for " + artvert.getUID() + " will retry later");
+				ofLogVerbose("Comm", "downloaded md5: " + artvert.getStoredMD5());
+				ofLogVerbose("Comm", "generated md5: " + artvert.generateMD5());
+				artvert.remove();
+			}
+		}else{
+			ofLogWarning("Comm", "couldn't download md5 for " + artvert.getUID() + " will retry later");
+		}
+	}
+
 	downloadAnalisys(artvert);
 
 }
@@ -145,7 +165,7 @@ void Comm::downloadAnalisys(Artvert & artvert){
 			ofLogWarning("Comm", "error md5 doesn't match for " + artvert.getUID() + " will retry later");
 			ofLogVerbose("Comm", "downloaded md5: " + artvert.getStoredMD5());
 			ofLogVerbose("Comm", "generated md5: " + artvert.generateMD5());
-			//artvert.removeAnalisys();
+			artvert.removeAnalisys();
 		}
 	}else{
 		ofLogWarning("Comm", "couldn't download md5 for " + artvert.getUID() + " will retry later");

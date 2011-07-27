@@ -3,11 +3,14 @@
 #include "PersistanceEngine.h"
 #include "Label.h"
 
+void ofSoundShutdown(){};
+
 int camW = 640;
 int camH = 480;
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
+	//ofSleepMillis(5000);
 	ofSetVerticalSync(true);
 	//ofSetLogLevel(OF_LOG_VERBOSE);
 	ofBackground(66,51,51);
@@ -44,17 +47,16 @@ void ArtvertiserApp::setup(){
 
 	counter = 0;
 	allocated = true;
-	ofLog(OF_LOG_WARNING,"loading " + ofToDataPath("model"+ofToString(counter)+".jpg"));
-	//ofimg.loadImage("model1.bmp");
-	//if(!ofimg.bAllocated()) allocated = false;
 
 	iconCache = ofPtr<gui::IconCache>(new gui::IconCache);
+
+	geo = ofPtr<ofxGeoLocation>(new ofxGeoLocation);
+
+	comm = ofPtr<Comm>(new Comm);
 
 	menu.setIconCache(iconCache);
 	menu.setup();
 	menu.enableEvents();
-
-	geo = ofPtr<ofxGeoLocation>(new ofxGeoLocation);
 
 	artvertInfo.setIconCache(iconCache);
 	artvertInfo.setGeo(geo);
@@ -62,13 +64,16 @@ void ArtvertiserApp::setup(){
 	takeAPhoto.setGeo(geo);
 	takeAPhoto.setup(grabber);
 
+	onlineArtverts.setURL("http://192.168.0.113:8888");
+	onlineArtverts.setIconCache(iconCache);
+	onlineArtverts.setComm(comm);
+	onlineArtverts.setup();
+
+	comm->setURL("http://192.168.0.113:8888");
+	comm->start();
 
 	state = Menu;
 
-	comm.setURL("http://192.168.1.35:8888");
-	comm.start();
-
-	onlineArtverts.setURL("http://192.168.1.35:8888");
 
 	circularPB.setRadius(30);
 	circularPB.setColor(ofColor(190,190,190));
@@ -80,13 +85,16 @@ void ArtvertiserApp::setup(){
 	ofAddListener(takeAPhoto.exitE,this,&ArtvertiserApp::appFinished);
 	ofAddListener(takeAPhoto.newPhotoE,this,&ArtvertiserApp::newPhoto);
 
-	ofAddListener(comm.gotAnalysisE,this,&ArtvertiserApp::gotAnalysis);
+	ofAddListener(comm->gotAnalysisE,this,&ArtvertiserApp::gotAnalysis);
 
 	ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
 	ofAddListener(menu.downloadPressedE,this,&ArtvertiserApp::downloadPressed);
 	ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::advertSelected);
 
 	ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
+
+
+	ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);
 
 	ofSetLogLevel(OF_LOG_VERBOSE);
 }
@@ -213,7 +221,7 @@ void ArtvertiserApp::newPhoto(const void * sender, Artvert & artvert ){
 
 		ofLogVerbose("ArtvertiserApp") << "sender correct";
 
-		comm.sendAdvert(artvert);
+		comm->sendAdvert(artvert);
 	}
 }
 

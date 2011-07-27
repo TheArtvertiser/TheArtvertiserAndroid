@@ -31,7 +31,7 @@ USER_LIBS =
 
 LINUX_COMPILER_OPTIMIZATION = -march=native -mtune=native -Os
 
-ANDROID_COMPILER_OPTIMIZATION = -Os
+ANDROID_COMPILER_OPTIMIZATION = -Os -g1
 
 
 # you shouldn't need to change this for usual OF apps, it allows to include code from other directories

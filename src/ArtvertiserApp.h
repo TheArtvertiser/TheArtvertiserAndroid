@@ -46,7 +46,7 @@
 	private:
 		Detector artvertiser;
 		TakeAPhoto takeAPhoto;
-		Comm comm;
+		ofPtr<Comm> comm;
 		MainMenu menu;
 		ArtvertInfo artvertInfo;
 		OnlineArtverts onlineArtverts;

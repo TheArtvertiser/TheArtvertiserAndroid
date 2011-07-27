@@ -1,0 +1,19 @@
+The Artvertiser for Android
+
+http://selectparks.net/~julian/theartvertiser/
+
+
+To compile it you'll need to download the latest version of openFrameworks, 007
+for android and follow the instructions to install it at:
+
+http://openframeworks.cc/setup/android-eclipse
+
+You'll also need the artvertiserCommons repository in:
+
+http://github.com/arturoc/artvertiserCommons
+
+and ofxHttpUtils which is included as a submodule.
+
+This software is still a beta version.
+
+

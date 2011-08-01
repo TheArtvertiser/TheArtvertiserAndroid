@@ -85,12 +85,12 @@ void ArtvertiserApp::setup(){
 	takeAPhoto.setGeo(geo);
 	takeAPhoto.setup(grabber);
 
-	onlineArtverts.setURL("http://192.168.0.113:8888");
+	onlineArtverts.setURL("http://192.168.1.134:8888");
 	onlineArtverts.setIconCache(iconCache);
 	onlineArtverts.setComm(comm);
 	onlineArtverts.setup();
 
-	comm->setURL("http://192.168.0.113:8888");
+	comm->setURL("http://192.168.1.134:8888");
 	comm->start();
 
 	state = Menu;
@@ -174,31 +174,39 @@ void ArtvertiserApp::draw(){
 		break;
 	case Tracking:
 		ofSetHexColor(0xFFFFFF);
+		int x=0, w=camW, h=camH;
+		float scale=1;
 		if(artvertiser.getState()!=Detector::Initializing){
-			grabber.draw(0,0,640,480);
+			h = ofGetHeight();
+			w = float(camW)/float(camH)*float(h);
+			x = (ofGetWidth() - w)/2;
+			scale = float(w)/float(camW);
+			grabber.draw(x,0,w,h);
 		}else{
 			circularPB.draw();
 		}
 		if(artvertiser.isDetected() || artvertiser.isTracked()){
 			ofPushMatrix();
+			ofTranslate(x,0);
+			ofScale(scale,scale,1);
 			glMultMatrixf(artvertiser.getHomography().getPtr());
 			subs_img.draw(0,0);
 			ofPopMatrix();
 		}
-		ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), 660, 20);
-		ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), 660, 40);
+		ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
+		ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
 
 		if(artvertiser.getState()==Detector::Initializing){
-			ofDrawBitmapString("Initializing", 660, 60);
+			ofDrawBitmapString("Initializing", x+20, 60);
 		}else if(artvertiser.isDetected()){
-			ofDrawBitmapString("Detected", 660, 60);
+			ofDrawBitmapString("Detected", x+20, 60);
 		}else if(artvertiser.isTracked()){
-			ofDrawBitmapString("Tracked", 660, 60);
+			ofDrawBitmapString("Tracked", x+20, 60);
 		}else{
-			ofDrawBitmapString("NotDetected", 660, 60);
+			ofDrawBitmapString("NotDetected", x+20, 60);
 		}
 
-		if(!allocated) ofDrawBitmapString("warning: not allocated", 660, 80);
+		if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
 		break;
 	}
 }

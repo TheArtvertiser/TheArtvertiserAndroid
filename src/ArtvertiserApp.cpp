@@ -24,7 +24,7 @@
 #include "PersistanceEngine.h"
 #include "Label.h"
 
-void ofSoundShutdown(){};
+//void ofSoundShutdown(){};
 
 int camW = 640;
 int camH = 480;
@@ -60,7 +60,7 @@ void ArtvertiserApp::setup(){
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
 
-	grabber.setDeviceID(1);
+	grabber.setDeviceID(0);
 	grabber.setDesiredFrameRate(60);
 	grabber.setUseTexture(false);
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
@@ -122,6 +122,23 @@ void ArtvertiserApp::setup(){
 
 //--------------------------------------------------------------
 void ArtvertiserApp::update(){
+	static enum State prev_state = state;
+   if ( prev_state != state )
+   {
+	   string state_string = "unknown";
+	   if ( state == Menu )
+		   state_string = "Menu";
+	   else if ( state == Photo )
+		   state_string = "Photo";
+	   else if ( state == OnlineList )
+		   state_string = "OnlineList";
+	   else if ( state == Info )
+		   state_string = "Info";
+	   else if ( state == Tracking )
+		   state_string = "Tracking";
+	   ofLogVerbose("ArtvertiserApp", "state changed: now "+ state_string );
+	   prev_state = state;
+   }	   
 	switch(state){
 	case Menu:
 		if(refreshMenu){
@@ -301,7 +318,9 @@ void ArtvertiserApp::artvertSelected(ofFile & artvertimg){
 
 	if(artvert.hasAlias()){
 		artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+		ofLogVerbose("ArtvertiserApp", "artvert.hasAlias()");
 	}else{
+		ofLogVerbose("ArtvertiserApp", "doesn't: artvert.hasAlias()");
 		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
 	}
 }

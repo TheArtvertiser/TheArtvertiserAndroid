@@ -26,8 +26,8 @@
 
 //void ofSoundShutdown(){};
 
-int camW = 640;
-int camH = 480;
+int camW = 800;
+int camH = 448;
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
@@ -38,6 +38,8 @@ void ArtvertiserApp::setup(){
 	ofEnableAlphaBlending();
 
 	ofSetLogLevel("ArtvertiserApp",OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_VERBOSE);
+
 	vector<Artvert> artverts = Artvert::listAll();
 	ofLogVerbose("ArtvertiserApp","checking artverts integrity");
 	for(int i=0; i<(int)artverts.size(); i++){
@@ -65,6 +67,8 @@ void ArtvertiserApp::setup(){
 	grabber.setUseTexture(false);
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
+    ofLogVerbose("ArtvertiserApp", "init grabber requested "+ofToString(camW)+"x"+ofToString(camH)+", got "
+                 +ofToString(grabber.getWidth())+"x"+ofToString(grabber.getHeight()) );
 
 	counter = 0;
 	allocated = true;
@@ -117,7 +121,6 @@ void ArtvertiserApp::setup(){
 
 	ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);
 
-	ofSetLogLevel(OF_LOG_VERBOSE);
 }
 
 //--------------------------------------------------------------

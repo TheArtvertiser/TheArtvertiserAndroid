@@ -118,6 +118,8 @@
 #endif
 
 		ofxXmlSettings settings;
+
+		bool showDebugInfo;
 };
 
 #endif

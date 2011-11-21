@@ -35,12 +35,12 @@ void KioskModeApp::setup(int _secsArtvert, string artvertUID){
 	millisLastArtvert = ofGetElapsedTimeMillis();
 	artverts.listDir("artverts");
 	currentArtvert = 0;
+	artvert = Artvert(artvertUID);
 	if(artverts.size()){
 		artvertFile = artverts.getFile(currentArtvert);
 		ofNotifyEvent(artvertChangedE,artvertFile);
 	}
 
-	artvert = Artvert(artvertUID);
 }
 
 void KioskModeApp::update(){

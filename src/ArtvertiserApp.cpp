@@ -56,24 +56,31 @@ void ArtvertiserApp::setup(){
 
 	refreshArtvert = false;
 
+	ofLogVerbose("ArtvertiserApp","setting orientation and screen sleep lock");
 #ifdef TARGET_ANDROID
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
+	ofxAndroidLockScreenSleep();
 #endif
 
+	ofLogVerbose("ArtvertiserApp","init video grabber");
+	//ofSleepMillis(5000);
 	//grabber.setDeviceID(1);
-	grabber.setDesiredFrameRate(60);
-	grabber.setUseTexture(false);
+	//grabber.setDesiredFrameRate(60);
+	//grabber.setUseTexture(false);
 
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
 
 #ifdef TARGET_ANDROID
+	ofLogVerbose("ArtvertiserApp","set audofocus");
 	ofxAndroidVideoGrabber * androidGrabber = (ofxAndroidVideoGrabber *) grabber.getGrabber().get();
 	if(!androidGrabber->setAutoFocus(true)){
 		ofSystemAlertDialog("Couldn't activate autofocus");
 	}
 #endif
 
+
+	ofLogVerbose("ArtvertiserApp","Create gui...");
 	counter = 0;
 	allocated = true;
 
@@ -83,6 +90,7 @@ void ArtvertiserApp::setup(){
 
 	comm = ofPtr<Comm>(new Comm);
 
+	ofLogVerbose("ArtvertiserApp","Inject dependencies");
 	menu.setIconCache(iconCache);
 	menu.setup();
 	menu.enableEvents();
@@ -110,20 +118,26 @@ void ArtvertiserApp::setup(){
 
 	imgQuad.resize(4);
 
+	ofLogVerbose("ArtvertiserApp","Load settings");
+
 	settings.loadFile("config/settings.xml");
 	settings.pushTag("settings");
+	showDebugInfo = settings.getValue("debug",0);
 	if(settings.getValue("kiosk",0)){
-
-		kioskMode.setup(settings.getValue("secsartvert",60), settings.getValue("artvert","20110504_015507715"));
 		state = Kiosk;
+		ofLogVerbose("ArtvertiserApp","set artvert changed event");
+		ofAddListener(kioskMode.artvertChangedE,this,&ArtvertiserApp::artvertSelected);
 
+		ofLogVerbose("ArtvertiserApp","setup kiosk mode");
+		kioskMode.setup(settings.getValue("secsartvert",60), settings.getValue("artvert","20110504_015507715"));
+
+		ofLogVerbose("ArtvertiserApp","setup detector");
 		Artvert & artvert = kioskMode.getArtvert();
 		if(artvert.hasAlias()){
 			artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
 		}else{
 			artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
 		}
-		ofAddListener(kioskMode.artvertChangedE,this,&ArtvertiserApp::artvertSelected);
 
 	}else{
 		state = Menu;
@@ -147,6 +161,7 @@ void ArtvertiserApp::setup(){
 		avahi.lookup("_http._tcp");
 	}
 
+	ofLogVerbose("ArtvertiserApp","End setup");
 }
 
 //--------------------------------------------------------------
@@ -230,21 +245,21 @@ void ArtvertiserApp::draw(){
 			subs_img.draw(0,0);
 			ofPopMatrix();
 		}
-		ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
-		ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
+		if(showDebugInfo)ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
+		if(showDebugInfo)ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
 
 		if(artvertiser.getState()==Detector::Initializing){
-			ofDrawBitmapString("Initializing", x+20, 60);
+			if(showDebugInfo) ofDrawBitmapString("Initializing", x+20, 60);
 		}else if(artvertiser.isDetected()){
-			ofDrawBitmapString("Detected", x+20, 60);
+			if(showDebugInfo) ofDrawBitmapString("Detected", x+20, 60);
 		}else if(artvertiser.isTracked()){
-			ofDrawBitmapString("Tracked", x+20, 60);
+			if(showDebugInfo) ofDrawBitmapString("Tracked", x+20, 60);
 		}else{
-			ofDrawBitmapString("NotDetected", x+20, 60);
+			if(showDebugInfo) ofDrawBitmapString("NotDetected", x+20, 60);
 		}
 
 		if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
-		if(state==Kiosk) ofDrawBitmapString(kioskMode.getCurrentArtvertName() + ", next in: " + ofToString(kioskMode.getSecsNextArtvert()), x+20,80);
+		if(state==Kiosk && showDebugInfo) ofDrawBitmapString(kioskMode.getCurrentArtvertName() + ", next in: " + ofToString(kioskMode.getSecsNextArtvert()), x+20,80);
 		break;
 	}
 }
@@ -323,10 +338,15 @@ void ArtvertiserApp::downloadPressed(bool & pressed){
 
 //--------------------------------------------------------------
 void ArtvertiserApp::artvertSelected(ofFile & artvertimg){
+	ofLogVerbose("ArtvertiserApp") << "artvert slelected" << artvertimg.getFileName();
+	ofLogVerbose("ArtvertiserApp") << "allocating image";
+
 	subs_img.setUseTexture(false);
 	subs_img.loadImage(artvertimg);
 	if(!subs_img.bAllocated()) allocated = false;
 	refreshArtvert = true;
+
+	ofLogVerbose("ArtvertiserApp") << "setting quad";
 
 	imgQuad[0].set(0,0);
 	imgQuad[1].set(subs_img.getWidth(),0);
@@ -343,6 +363,7 @@ void ArtvertiserApp::artvertSelected(ofFile & artvertimg){
 			artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
 		}
 	}else{
+		ofLogVerbose("ArtvertiserApp") << "setting detector quad";
 		artvertiser.setSrcQuad(imgQuad);
 	}
 }

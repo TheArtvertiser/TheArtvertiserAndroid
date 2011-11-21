@@ -75,7 +75,7 @@ void MainMenu::disableEvents(){
 void MainMenu::refresh(){
 	artverts = Artvert::listAll();
 	grid.clear();
-	readyCache.resize(artverts.size());
+	readyCache.resize(artverts.size(),false);
 	for(int i=0; i<(int)artverts.size(); ++i){
 		ofPtr<gui::Button> button(new gui::Button);
 		grid.addWidget(button);

@@ -71,8 +71,8 @@ void OnlineArtverts::setComm(ofPtr<Comm> _comm){
 
 void OnlineArtverts::setup(){
 	allDownloaded.setFont(iconCache->getFont(listTTF,30));
-	allDownloaded.setPosition({30,30});
-	allDownloaded.setColor({255,255,255});
+	allDownloaded.setPosition(ofPoint(30,30));
+	allDownloaded.setColor(ofColor(255,255,255));
 }
 
 void OnlineArtverts::start(){

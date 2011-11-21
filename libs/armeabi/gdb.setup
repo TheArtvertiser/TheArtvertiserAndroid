@@ -1,6 +1,6 @@
 set solib-search-path /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/obj/local/armeabi:/home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/libs/armeabi
-directory /home/arturo/Descargas/android-ndk-r5b/platforms/android-8/arch-arm/usr/include
+directory /home/arturo/Descargas/android-ndk-r6/platforms/android-8/arch-arm/usr/include
 directory /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/src
-directory /home/arturo/Descargas/android-ndk-r5b/sources/cxx-stl/system
+directory /home/arturo/Descargas/android-ndk-r6/sources/cxx-stl/system
 directory /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/libs/armeabi
 

@@ -31,6 +31,7 @@ public:
 	virtual ~Comm();
 
 	void setURL(string url);
+	string getURL();
 
 	void start();
 	void stop();

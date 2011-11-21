@@ -41,9 +41,10 @@ TakeAPhoto::TakeAPhoto()
 
 }
 
-void TakeAPhoto::setGeo(ofPtr<ofxGeoLocation> & _geo){
+void TakeAPhoto::setGeo(ofPtr<ofxGoogleMaps> & _geo){
 	geo = _geo;
 }
+
 
 void TakeAPhoto::setup(ofVideoGrabber & _video){
 	video = &_video;
@@ -97,14 +98,14 @@ void TakeAPhoto::setup(ofVideoGrabber & _video){
 
 	ofAddListener(ofEvents.windowResized,this,&TakeAPhoto::windowResized);
 
-	geoPanel.setRectCompressed(ofRectangle(0,0,380,40));
+	/*geoPanel.setRectCompressed(ofRectangle(0,0,380,40));
 	geoPanel.setRectExpanded(ofRectangle(0,0,380,320));
 	geoPanel.setLeftMargin(20);
 	geoPanel.expand();
 	geoPanel.addWidget(address);
 	geoPanel.addDrawable(geo);
 	geoPanel.setVSpacing(15);
-	geoPanel.enableEvents();
+	geoPanel.enableEvents();*/
 
 }
 
@@ -141,7 +142,8 @@ void TakeAPhoto::updateState(Transition transition){
 		video->resetAnchor();
 		borderFrame.disableEvents();
 		state = Init;
-		geo->stop();
+		//geo->hideMap();
+		//geo->stop();
 		ofRemoveListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		bool yes;
 		ofNotifyEvent(exitE,yes,this);
@@ -158,12 +160,12 @@ void TakeAPhoto::updateState(Transition transition){
 			borderFrame.enableEvents();
 			video->setAnchorPercent(0.5,0.5);
 			state = TakingPhoto;
-			geo->setSize(320,240);
-			geo->start();
-			geoPanel.compress();
+			//geo->showMap(0,0,320,240);
+			//geo->start();
+			//geoPanel.compress();
 			ofAddListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		}
-
+		break;
 	case TakingPhoto:
 		if(transition==PhotoPressed){
 			ofLogVerbose("TakeAPhoto","photo pressed");
@@ -262,10 +264,9 @@ void TakeAPhoto::update(){
 		updateState(UpdatedImage);
 	}
 
-	geo->update();
 	address->setText(geo->getAddress());
-	geoPanel.repositionWidgets();
-	geoPanel.update();
+	//geoPanel.repositionWidgets();
+	//geoPanel.update();
 }
 
 void TakeAPhoto::draw(){
@@ -285,7 +286,7 @@ void TakeAPhoto::draw(){
 		//ofDrawBitmapString(geo->getAddress(),20,20);
 		ofSetColor(255,255,255,200);
 		//geo->drawLastLocationImage(20,40);
-		geoPanel.draw();
+		//geoPanel.draw();
 		ofPopStyle();
 	}
 

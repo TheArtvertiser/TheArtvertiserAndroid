@@ -14,6 +14,10 @@ http://github.com/arturoc/artvertiserCommons
 
 and ofxHttpUtils which is included as a submodule.
 
+To be completely functional it needs the server module, which lives in:
+
+http://github.com/arturoc/artvertiserServer
+
 This software is still a beta version.
 
 

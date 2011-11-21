@@ -1,20 +1,32 @@
 package cc.openframeworks.androidFerns;
 
-import android.app.Activity;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapView;
+
+import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup.MarginLayoutParams;
 import cc.openframeworks.OFAndroid;
 
 
-public class OFActivity extends Activity{
-
+public class OFActivity extends MapActivity{
+	WifiManager.MulticastLock multicastLock;
+	
 	@Override
     public void onCreate(Bundle savedInstanceState)
     { 
         super.onCreate(savedInstanceState);
         String packageName = getPackageName();
+        
+        WifiManager wifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        multicastLock = wifiManager.createMulticastLock("OF");
+        multicastLock.acquire();
+        
         ofApp = new OFAndroid(packageName,this);
     }
 	
@@ -69,7 +81,7 @@ public class OFActivity extends Activity{
     	// This passes the menu option string to OF
     	// you can add additional behavior from java modifying this method
     	// but keep the call to OFAndroid so OF is notified of menu events
-    	if(OFAndroid.menuItemSelected(item)){
+    	if(OFAndroid.menuItemSelected(item.getItemId())){
     		
     		return true;
     	}
@@ -83,7 +95,15 @@ public class OFActivity extends Activity{
     	//  you can add or remove menu options from here
     	return  super.onPrepareOptionsMenu(menu);
     }
-	
+
+    
+    // Google maps
+	@Override
+	protected boolean isRouteDisplayed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
 
 

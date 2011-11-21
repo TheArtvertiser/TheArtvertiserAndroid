@@ -28,15 +28,13 @@ ArtvertInfo::ArtvertInfo()
 :advert(new ofImage)
 ,refresh(false)
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 ArtvertInfo::~ArtvertInfo() {
-	// TODO Auto-generated destructor stub
 }
 
-void ArtvertInfo::setGeo(ofPtr<ofxGeoLocation> & _geo){
+void ArtvertInfo::setGeo(ofPtr<ofxGoogleMaps> & _geo){
 	geo = _geo;
 }
 
@@ -45,7 +43,7 @@ void ArtvertInfo::show(Artvert & _artvert){
 	artvert = _artvert;
 
 	location = artvert.getLocation();
-	geo->setSize(ofGetWidth()/3.,ofGetWidth()/4.);
+	geo->showMap(20,ofGetHeight()-20-ofGetWidth()/4.,ofGetWidth()/3.,ofGetWidth()/4.);
 	geo->setLocation(location);
 
 	ofImage cameraIcon;
@@ -104,6 +102,7 @@ void ArtvertInfo::show(Artvert & _artvert){
 void ArtvertInfo::stop(){
 	grid.disableEvents();
 	advert->setUseTexture(false);
+	geo->hideMap();
 }
 
 void ArtvertInfo::update(){
@@ -113,7 +112,6 @@ void ArtvertInfo::update(){
 		refresh = false;
 	}
 	grid.update();
-	geo->update();
 }
 
 void ArtvertInfo::draw(){
@@ -126,7 +124,6 @@ void ArtvertInfo::draw(){
 
 	ofFill();
 	ofSetColor(255,255,255);
-	geo->draw(20,ofGetHeight()-20-geo->getHeight());
 
 	if(artvert.isReady())
 		ofDrawBitmapString("Ready",advert->getWidth()+40,30);

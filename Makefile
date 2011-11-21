@@ -24,10 +24,10 @@
 #
 # edit the following  vars to customize the makefile
 
-include config.make
+
 
 ifeq ($(findstring Android,$(MAKECMDGOALS)),Android)
-	include $(OF_ROOT)/libs/openFrameworksCompiled/project/android/paths.make
+	
 	ARCH = android
 	ifeq ($(shell uname),Darwin)
 		HOST_PLATFORM = darwin-x86
@@ -36,7 +36,10 @@ ifeq ($(findstring Android,$(MAKECMDGOALS)),Android)
 	endif
 endif
 
+include config.make
+
 ifeq ($(ARCH),android)
+	include $(OF_ROOT)/libs/openFrameworksCompiled/project/android/paths.make
 	COMPILER_OPTIMIZATION = $(ANDROID_COMPILER_OPTIMIZATION)
 	NDK_PLATFORM = android-8
 else
@@ -84,7 +87,9 @@ SOURCES = $(shell find $(SOURCE_DIRS) -maxdepth 1 -mindepth 1 -name "*.cpp" -or 
 OBJFILES = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(SOURCES))))
 
 ifneq (,$(USER_SOURCE_DIR))
-	USER_SOURCES = $(shell find $(USER_SOURCE_DIR) -name "*.cpp" -or -name "*.c" -or -name "*.cc")
+	SED_EXCLUDE_FROM_USER_SRC = $(shell echo  $(EXCLUDE_FROM_SOURCE) | sed "s/,\(.*\)/,\1,/g" | sed "s/\([^,]*\),/ \1%/g")
+	ALL_USER_SOURCE_DIRS = $(filter-out $(SED_EXCLUDE_FROM_USER_SRC), $(shell find $(USER_SOURCE_DIR) -type d))
+	USER_SOURCES = $(shell find $(ALL_USER_SOURCE_DIRS) -maxdepth 1 -mindepth 1 -name "*.cpp" -or -name "*.c" -or -name "*.cc")
 	USER_OBJFILES =  $(subst $(USER_SOURCE_DIR)/, ,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(USER_SOURCES)))))
 endif
 
@@ -338,13 +343,13 @@ $(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.cc
 	mkdir -p $(@D)
 	$(CC) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
 
-$(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.cpp
+$(OBJ_OUTPUT)%.o: $(USER_SOURCE_DIR)/%.cpp 
 	@echo "compiling object for: " $<
 	mkdir -p $(@D)
 	$(CXX) $(TARGET_CFLAGS) $(CFLAGS) $(ADDONSCFLAGS) $(USER_CFLAGS) -MMD -MP -MF$(OBJ_OUTPUT)$*.d -MT$(OBJ_OUTPUT)$*.d -o$@ -c $<
 	
 $(TARGET): $(OBJS) $(ADDONS_OBJS) $(USER_OBJS) $(TARGET_LIBS) $(LIB_STATIC) Makefile
-	@echo 'linking $(TARGET) $(SOURCE_DIRS)'
+	@echo 'linking $(TARGET) $(ALL_USER_SOURCE_DIRS)'
 	mkdir -p $(@D)
 	$(CXX) -o $@ $(OBJS) $(ADDONS_OBJS) $(USER_OBJS) $(LDFLAGS) $(USER_LDFLAGS) $(TARGET_LIBS) $(ADDONSLIBS) $(USER_LIBS) $(LIB_STATIC) $(LIB_PATHS_FLAGS) $(LIB_SHARED) $(SYSTEMLIBS)
 
@@ -415,7 +420,7 @@ AndroidInstall:
 	fi 
 	if [ -f obj/$(BIN_NAME) ]; then rm obj/$(BIN_NAME); fi
 	#touch AndroidManifest.xml
-	$(SDK_ROOT)/tools/android update project --target $(NDK_PLATFORM) --path $(PROJECT_PATH)
+	$(SDK_ROOT)/tools/android update project --target "Google Inc.:Google APIs:8" --path $(PROJECT_PATH)
 	ant debug
 	cp bin/OFActivity-debug.apk bin/$(APPNAME).apk
 	#if [ "$(shell $(SDK_ROOT)/platform-tools/adb get-state)" = "device" ]; then

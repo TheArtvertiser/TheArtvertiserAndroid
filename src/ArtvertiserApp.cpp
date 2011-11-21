@@ -24,20 +24,20 @@
 #include "PersistanceEngine.h"
 #include "Label.h"
 
-void ofSoundShutdown(){};
 
 int camW = 640;
 int camH = 480;
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
+
+	ofSetLogLevel(OF_LOG_VERBOSE);
+
 	//ofSleepMillis(5000);
 	ofSetVerticalSync(true);
-	//ofSetLogLevel(OF_LOG_VERBOSE);
 	ofBackground(66,51,51);
 	ofEnableAlphaBlending();
 
-	ofSetLogLevel("ArtvertiserApp",OF_LOG_VERBOSE);
 	vector<Artvert> artverts = Artvert::listAll();
 	ofLogVerbose("ArtvertiserApp","checking artverts integrity");
 	for(int i=0; i<(int)artverts.size(); i++){
@@ -60,18 +60,26 @@ void ArtvertiserApp::setup(){
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
 
-	grabber.setDeviceID(1);
+	//grabber.setDeviceID(1);
 	grabber.setDesiredFrameRate(60);
 	grabber.setUseTexture(false);
+
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
+
+#ifdef TARGET_ANDROID
+	ofxAndroidVideoGrabber * androidGrabber = (ofxAndroidVideoGrabber *) grabber.getGrabber().get();
+	if(!androidGrabber->setAutoFocus(true)){
+		ofSystemAlertDialog("Couldn't activate autofocus");
+	}
+#endif
 
 	counter = 0;
 	allocated = true;
 
 	iconCache = ofPtr<gui::IconCache>(new gui::IconCache);
 
-	geo = ofPtr<ofxGeoLocation>(new ofxGeoLocation);
+	geo = ofPtr<ofxGoogleMaps>(new ofxGoogleMaps);
 
 	comm = ofPtr<Comm>(new Comm);
 
@@ -93,7 +101,6 @@ void ArtvertiserApp::setup(){
 	comm->setURL("http://192.168.1.134:8888");
 	comm->start();
 
-	state = Menu;
 
 
 	circularPB.setRadius(30);
@@ -103,21 +110,43 @@ void ArtvertiserApp::setup(){
 
 	imgQuad.resize(4);
 
-	ofAddListener(takeAPhoto.exitE,this,&ArtvertiserApp::appFinished);
-	ofAddListener(takeAPhoto.newPhotoE,this,&ArtvertiserApp::newPhoto);
+	settings.loadFile("config/settings.xml");
+	settings.pushTag("settings");
+	if(settings.getValue("kiosk",0)){
 
-	ofAddListener(comm->gotAnalysisE,this,&ArtvertiserApp::gotAnalysis);
+		kioskMode.setup(settings.getValue("secsartvert",60), settings.getValue("artvert","20110504_015507715"));
+		state = Kiosk;
 
-	ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
-	ofAddListener(menu.downloadPressedE,this,&ArtvertiserApp::downloadPressed);
-	ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::advertSelected);
+		Artvert & artvert = kioskMode.getArtvert();
+		if(artvert.hasAlias()){
+			artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+		}else{
+			artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+		}
+		ofAddListener(kioskMode.artvertChangedE,this,&ArtvertiserApp::artvertSelected);
 
-	ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
+	}else{
+		state = Menu;
+		ofAddListener(takeAPhoto.exitE,this,&ArtvertiserApp::appFinished);
+		ofAddListener(takeAPhoto.newPhotoE,this,&ArtvertiserApp::newPhoto);
+
+		ofAddListener(comm->gotAnalysisE,this,&ArtvertiserApp::gotAnalysis);
+
+		ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
+		ofAddListener(menu.downloadPressedE,this,&ArtvertiserApp::downloadPressed);
+		ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::advertSelected);
+
+		ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
 
 
-	ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);
+		ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);
 
-	ofSetLogLevel(OF_LOG_VERBOSE);
+
+		ofAddListener(avahi.serviceNewE,this,&ArtvertiserApp::avahiServiceFound);
+		//avahi.lookup("_services._dns-sd._udp");
+		avahi.lookup("_http._tcp");
+	}
+
 }
 
 //--------------------------------------------------------------
@@ -141,6 +170,8 @@ void ArtvertiserApp::update(){
 	case Info:
 		artvertInfo.update();
 		break;
+	case Kiosk:
+		kioskMode.update();
 	case Tracking:
 		if(refreshArtvert){
 			subs_img.setUseTexture(true);
@@ -159,28 +190,34 @@ void ArtvertiserApp::update(){
 
 //--------------------------------------------------------------
 void ArtvertiserApp::draw(){
+
+	int w=camW, h=camH;
+	int x;
+
 	switch(state){
 	case Menu:
 		menu.draw();
+		ofDrawBitmapString(comm->getURL(),ofGetWidth()-300,ofGetHeight()-20);
 		break;
 	case Photo:
 		takeAPhoto.draw();
 		break;
 	case OnlineList:
 		onlineArtverts.draw();
+		ofDrawBitmapString(comm->getURL(),ofGetWidth()-300,ofGetHeight()-20);
 		break;
 	case Info:
 		artvertInfo.draw();
 		break;
+	case Kiosk:
 	case Tracking:
 		ofSetHexColor(0xFFFFFF);
-		int x=0, w=camW, h=camH;
 		float scale=1;
+		h = ofGetHeight();
+		w = float(camW)/float(camH)*float(h);
+		x = (ofGetWidth() - w)/2;
+		scale = float(w)/float(camW);
 		if(artvertiser.getState()!=Detector::Initializing){
-			h = ofGetHeight();
-			w = float(camW)/float(camH)*float(h);
-			x = (ofGetWidth() - w)/2;
-			scale = float(w)/float(camW);
 			grabber.draw(x,0,w,h);
 		}else{
 			circularPB.draw();
@@ -207,6 +244,7 @@ void ArtvertiserApp::draw(){
 		}
 
 		if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
+		if(state==Kiosk) ofDrawBitmapString(kioskMode.getCurrentArtvertName() + ", next in: " + ofToString(kioskMode.getSecsNextArtvert()), x+20,80);
 		break;
 	}
 }
@@ -295,14 +333,17 @@ void ArtvertiserApp::artvertSelected(ofFile & artvertimg){
 	imgQuad[2].set(subs_img.getWidth(),subs_img.getHeight());
 	imgQuad[3].set(0,subs_img.getHeight());
 
-	state = Tracking;
-	artvertInfo.stop();
-	Artvert & artvert = artvertInfo.getCurrentArtvert();
-
-	if(artvert.hasAlias()){
-		artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+	if(state!=Kiosk){
+		state = Tracking;
+		artvertInfo.stop();
+		Artvert & artvert = artvertInfo.getCurrentArtvert();
+		if(artvert.hasAlias()){
+			artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+		}else{
+			artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+		}
 	}else{
-		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+		artvertiser.setSrcQuad(imgQuad);
 	}
 }
 
@@ -311,6 +352,17 @@ void ArtvertiserApp::advertSelected(Artvert & artvert){
 	state = Info;
 	artvertInfo.show(artvert);
 	menu.disableEvents();
+}
+
+//--------------------------------------------------------------
+void ArtvertiserApp::avahiServiceFound(ofxAvahiService & service){
+	ofLogNotice("ArtvertiserApp") << "new service" << service.name;
+	if(service.name=="Artvertiser server"){
+		string url = "http://"+service.ip+":"+ofToString(service.port);
+		ofLogNotice("ArtvertiserApp") << "found artvertiser server:" << url;
+		comm->setURL(url);
+		onlineArtverts.setURL(url);
+	}
 }
 
 //--------------------------------------------------------------
@@ -344,6 +396,10 @@ bool ArtvertiserApp::backPressed(){
 		state = Menu;
 		return true;
 		break;
+	case Kiosk:
+		return true;  // ignore back key
+		break;
 	}
 	return false;
 }
+

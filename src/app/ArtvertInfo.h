@@ -27,13 +27,15 @@
 #include "Grid.h"
 #include "IconCache.h"
 #include "ofxGeoLocation.h"
+#include "OFActivityJNI.h"
+#include "ofxGoogleMaps.h"
 
 class ArtvertInfo {
 public:
 	ArtvertInfo();
 	virtual ~ArtvertInfo();
 
-	void setGeo(ofPtr<ofxGeoLocation> & geo);
+	void setGeo(ofPtr<ofxGoogleMaps> & geo);
 
 	void show(Artvert & artvert);
 	void stop();
@@ -57,7 +59,7 @@ private:
 	ofPtr<gui::IconCache> iconCache;
 	vector<ofFile> artverts;
 	bool refresh;
-	ofPtr<ofxGeoLocation> geo;
+	ofPtr<ofxGoogleMaps> geo;
 	ofMutex mutex;
 	ofPolyline quad;
 };

@@ -31,16 +31,18 @@
 #include "ExpandablePanel.h"
 #include "Label.h"
 #include "Artvert.h"
+#include "OFActivityJNI.h"
 
 #ifdef TARGET_ANDROID
 #include "ofxAndroidGPS.h"
+#include "ofxGoogleMaps.h"
 #endif
 
 class TakeAPhoto {
 public:
 	TakeAPhoto();
 
-	void setGeo(ofPtr<ofxGeoLocation> & geo);
+	void setGeo(ofPtr<ofxGoogleMaps> & geo);
 
 	void setup(ofVideoGrabber & _video);
 	void start();
@@ -109,10 +111,10 @@ private:
 
 	ofPoint originalVideoAnchor;
 
-	ofPtr<ofxGeoLocation> geo;
+	ofPtr<ofxGoogleMaps> geo;
 
 	ofPtr<gui::Label> address;
-	gui::ExpandablePanel geoPanel;
+	//gui::ExpandablePanel geoPanel;
 
 	// This class cannot be copied
 	const TakeAPhoto & operator=(const TakeAPhoto &){return *this;};

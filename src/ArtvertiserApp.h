@@ -29,8 +29,16 @@
 #include "MainMenu.h"
 #include "ArtvertInfo.h"
 #include "IconCache.h"
-#include "ofxGeoLocation.h"
+#include "ofxGoogleMaps.h"
 #include "OnlineArtverts.h"
+#include "OFActivityJNI.h"
+#include "KioskModeApp.h"
+
+#ifdef TARGET_ANDROID
+#include "ofxAvahiCoreBrowser.h"
+#else
+#include "ofxAvahiClientBrowser.h"
+#endif
 
 								
 #ifdef TARGET_ANDROID
@@ -62,7 +70,10 @@
 		void advertSelected(Artvert & artvert);
 		void artvertSelected(ofFile & artvert);
 
+		void avahiServiceFound(ofxAvahiService & service);
+
 		bool backPressed();
+
 
 	private:
 		Detector artvertiser;
@@ -71,6 +82,7 @@
 		MainMenu menu;
 		ArtvertInfo artvertInfo;
 		OnlineArtverts onlineArtverts;
+		KioskModeApp kioskMode;
 
 		ofImage ofimg, subs_img;
 		int counter;
@@ -80,21 +92,32 @@
 		gui::CircularPB circularPB;
 
 		ofPtr<gui::IconCache> iconCache;
-		ofPtr<ofxGeoLocation> geo;
+		ofPtr<ofxGoogleMaps> geo;
 
 		bool allocated;
 
 		bool refreshArtvert;
 		bool refreshMenu;
 
+		int secsArtvert;
+		int millisLastArtvert;
+
 		enum State{
 			Menu,
 			OnlineList,
 			Photo,
 			Info,
-			Tracking
+			Tracking,
+			Kiosk
 		}state;
 
+#ifdef TARGET_ANDROID
+		ofxAvahiCoreBrowser avahi;
+#else
+		ofxAvahiClientBrowser avahi;
+#endif
+
+		ofxXmlSettings settings;
 };
 
 #endif

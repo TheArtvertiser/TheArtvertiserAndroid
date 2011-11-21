@@ -36,6 +36,10 @@ void Comm::setURL(string _url){
 	url = _url;
 }
 
+string Comm::getURL(){
+	return url;
+}
+
 void Comm::start(){
 	ofAddListener(httpClient.newResponseEvent,this,&Comm::newResponse);
 	startThread(true,false);
@@ -98,6 +102,19 @@ void Comm::downloadArtvert(Artvert & artvert){
 		}
 	}
 
+	if(!artvert.getLocationFile().exists()){
+		ofxHttpResponse location = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.location");
+		if(location.status==200){
+			ofLogVerbose("Comm", "got md5 correctly, saving " + ofToString(location.responseBody.size()) + " bytes");
+			ofFile locationFile = artvert.getLocationFile();
+			locationFile.changeMode(ofFile::WriteOnly,true);
+			locationFile << location.responseBody;
+			locationFile.close();
+		}else{
+			ofLogWarning("Comm", "couldn't download location for " + artvert.getUID() + " will retry later");
+		}
+	}
+
 	if(!artvert.getMD5File().exists()){
 		ofxHttpResponse resp_md5 = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.md5.notready");
 		if(resp_md5.status==200){
@@ -117,7 +134,6 @@ void Comm::downloadArtvert(Artvert & artvert){
 			ofLogWarning("Comm", "couldn't download md5 for " + artvert.getUID() + " will retry later");
 		}
 	}
-
 	downloadAnalisys(artvert);
 
 }
@@ -134,11 +150,15 @@ void Comm::downloadAnalisys(Artvert & artvert){
 
 		ofxHttpResponse resp_detector = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.detector_data");
 		if(resp_detector.status==200){
-			ofLogVerbose("Comm", "got detector data correctly, saving " + ofToString(resp_detector.responseBody.size()) + " bytes");
 			ofFile detectorData = artvert.getDetectorData();
-			detectorData.changeMode(ofFile::WriteOnly,true);
-			detectorData << resp_detector.responseBody;
-			detectorData.close();
+			ofLogVerbose("Comm", "got detector data correctly, saving " + detectorData.path() + " " + ofToString(resp_detector.responseBody.size()) + " bytes");
+
+			if(detectorData.changeMode(ofFile::WriteOnly,true)){
+				detectorData << resp_detector.responseBody;
+				detectorData.close();
+			}else{
+				ofLogError("Comm") << "Error opening" << detectorData.path();
+			}
 		}else if(resp_detector.status==301){
 			ofLogVerbose("Comm", "got detector redirection " + resp_detector.location);
 			string aliasUID = ofFilePath::getBaseName(ofFilePath::getBaseName(resp_detector.location));

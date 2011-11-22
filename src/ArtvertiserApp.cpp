@@ -25,8 +25,8 @@
 #include "Label.h"
 
 
-int camW = 640;
-int camH = 480;
+int camW = 800;
+int camH = 448;
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
@@ -70,6 +70,8 @@ void ArtvertiserApp::setup(){
 
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
+    ofLogVerbose("ArtvertiserApp", "init grabber requested "+ofToString(camW)+"x"+ofToString(camH)+", got "
+                 +ofToString(grabber.getWidth())+"x"+ofToString(grabber.getHeight()) );
 
 #ifdef TARGET_ANDROID
 	ofLogVerbose("ArtvertiserApp","set audofocus");

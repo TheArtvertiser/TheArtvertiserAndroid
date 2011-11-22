@@ -37,7 +37,7 @@ int main(){
 	ofPtr<ofAppGlutWindow> window (new ofAppGlutWindow);
 #endif
 	//ofSetupOpenGL(window, 1024, 600, OF_WINDOW);			// <-------- setup the GL context
-	ofSetupOpenGL(window, 800, 400, OF_WINDOW);			// <-------- setup the GL context
+	ofSetupOpenGL(window, 800, 400, OF_FULLSCREEN);			// <-------- setup the GL context
 	// this kicks off the running of my app
 	// can be OF_WINDOW or OF_FULLSCREEN
 	// pass in width and height too:

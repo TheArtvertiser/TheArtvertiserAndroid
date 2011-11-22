@@ -1,4 +1,4 @@
-package cc.openframeworks.androidFerns;
+package cc.openframeworks.TheArtvertiserAndroid;
 
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;

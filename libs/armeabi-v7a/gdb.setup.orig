@@ -1,0 +1,14 @@
+<<<<<<< HEAD
+set solib-search-path /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/obj/local/armeabi-v7a:/home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/libs/armeabi-v7a
+directory /home/arturo/Descargas/android-ndk-r6/platforms/android-8/arch-arm/usr/include
+directory /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/src
+directory /home/arturo/Descargas/android-ndk-r6/sources/cxx-stl/system
+directory /home/arturo/Escritorio/openFrameworks/apps/artvertiser/androidFerns/libs/armeabi-v7a
+=======
+set solib-search-path /Users/damian/code/ofgit/apps/artvertiser/TheArtvertiserAndroid/obj/local/armeabi-v7a:/Users/damian/code/ofgit/apps/artvertiser/TheArtvertiserAndroid/libs/armeabi-v7a
+directory /Users/damian/code/android/android-ndk-r6b/platforms/android-8/arch-arm/usr/include
+directory /Users/damian/code/ofgit/apps/artvertiser/TheArtvertiserAndroid/src
+directory /Users/damian/code/android/android-ndk-r6b/sources/cxx-stl/system
+directory /Users/damian/code/ofgit/apps/artvertiser/TheArtvertiserAndroid/libs/armeabi-v7a
+>>>>>>> 202eec964491a8f1dc1accdb96d3efc5dab071fa
+

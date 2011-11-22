@@ -166,6 +166,23 @@ void ArtvertiserApp::setup(){
 
 //--------------------------------------------------------------
 void ArtvertiserApp::update(){
+	static enum State prev_state = state;
+   if ( prev_state != state )
+   {
+	   string state_string = "unknown";
+	   if ( state == Menu )
+		   state_string = "Menu";
+	   else if ( state == Photo )
+		   state_string = "Photo";
+	   else if ( state == OnlineList )
+		   state_string = "OnlineList";
+	   else if ( state == Info )
+		   state_string = "Info";
+	   else if ( state == Tracking )
+		   state_string = "Tracking";
+	   ofLogVerbose("ArtvertiserApp", "state changed: now "+ state_string );
+	   prev_state = state;
+   }	   
 	switch(state){
 	case Menu:
 		if(refreshMenu){

@@ -1,0 +1,3 @@
+[submodule "src/ofxHttpUtils"]
+	path = src/ofxHttpUtils
+	url = https://github.com/arturoc/ofxHttpUtils

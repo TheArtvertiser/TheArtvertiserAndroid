@@ -73,7 +73,10 @@ void ArtvertInfo::show(Artvert & _artvert){
 	grid.enableEvents();
 
 	artverts = artvert.getArtverts();
+	ofLogVerbose("ArtvertiserApp", "number of artverts: "+ofToString(artverts.size()) );
 	for(int i=0;i<(int)artverts.size();i++){
+		ofLogVerbose("ArtvertiserApp", ofToString(i)+": "+artverts[i].getAbsolutePath() );
+
 		grid.addWidget(ofPtr<gui::Button>(new gui::Button));
 		gui::Button * button = (gui::Button*)grid.getWidget(i).get();
 		ofPtr<ofImage> icon = iconCache->getResource(artverts[i].getAbsolutePath()+"Resized");
@@ -137,9 +140,14 @@ void ArtvertInfo::draw(){
 }
 
 void ArtvertInfo::artvertPressed(const void * sender, bool & pressed){
-	if(!artvert.isReady()) return;
+	ofLogVerbose("ArtvertiserApp", "ArtvertInfo::artvertPressed");
+	if(!artvert.isReady()) {
+		ofLogVerbose("ArtvertiserApp", "artvert is not ready: returning");
+		return;
+	}
 	for(int i=0;i<grid.size();i++){
 		if(grid[i].get() == sender){
+			ofLogVerbose("ArtvertiserApp", "grid "+ofToString(i)+" is sender, notifying");
 			ofNotifyEvent(artvertSelectedE,artverts[i]);
 			return;
 		}

@@ -49,7 +49,7 @@ USER_SOURCE_DIR = ../TheArtvertiserCommon
 
 
 ifeq ($(ARCH),android)
-	EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj,src/ofxHttpUtils/example,../artvertiserCommon/ofxAvahiClient/src,../artvertiserCommon/.git,../artvertiserCommon/ofxAvahiClient/.git,.git,./src/ofxAvahiCore/.git"
+	EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj,src/ofxHttpUtils/example,../TheArtvertiserCommon/ofxAvahiClient/src,../TheArtvertiserCommon/.git,../TheArtvertiserCommon/ofxAvahiClient/.git,.git,./src/ofxAvahiCore/.git"
 else
 	EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj,src/ofxHttpUtils/example,src/ofxAvahiCore/src,.git"
 endif

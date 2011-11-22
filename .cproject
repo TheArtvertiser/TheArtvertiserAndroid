@@ -40,6 +40,16 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.162935411.330467639" name="/" resourcePath="src/artvertiserCommon">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1937308798" name="cdt.managedbuild.toolchain.gnu.base" superClass="cdt.managedbuild.toolchain.gnu.base" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.328447510" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.2046915958"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.860009311" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.738796065"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1430152530" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.175987381"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1994062363" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.1213607532"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1332038653" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.1994850335"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1993123618" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.1403843933"/>
+						</toolChain>
+					</folderInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
@@ -235,7 +245,9 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="androidEmptyExample.null.87662498" name="androidEmptyExample"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/androidFerns"/>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile"/>
 		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">

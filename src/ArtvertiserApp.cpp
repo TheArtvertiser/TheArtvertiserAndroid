@@ -25,8 +25,8 @@
 #include "Label.h"
 
 
-int camW = 800;
-int camH = 448;
+//int camW = 800;
+//int camH = 448;
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
@@ -56,6 +56,13 @@ void ArtvertiserApp::setup(){
 
 	refreshArtvert = false;
 
+
+	settings.loadFile("config/settings.xml");
+	settings.pushTag("settings");
+	showDebugInfo = settings.getValue("debug",0);
+	camW = settings.getValue("camW",800);
+	camH = settings.getValue("camH",448);
+
 	ofLogVerbose("ArtvertiserApp","setting orientation and screen sleep lock");
 #ifdef TARGET_ANDROID
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
@@ -63,10 +70,6 @@ void ArtvertiserApp::setup(){
 #endif
 
 	ofLogVerbose("ArtvertiserApp","init video grabber");
-	//ofSleepMillis(5000);
-	//grabber.setDeviceID(1);
-	//grabber.setDesiredFrameRate(60);
-	//grabber.setUseTexture(false);
 
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
@@ -122,9 +125,6 @@ void ArtvertiserApp::setup(){
 
 	ofLogVerbose("ArtvertiserApp","Load settings");
 
-	settings.loadFile("config/settings.xml");
-	settings.pushTag("settings");
-	showDebugInfo = settings.getValue("debug",0);
 	if(settings.getValue("kiosk",0)){
 		state = Kiosk;
 		ofLogVerbose("ArtvertiserApp","set artvert changed event");

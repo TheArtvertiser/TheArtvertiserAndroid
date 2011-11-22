@@ -120,6 +120,9 @@
 		ofxXmlSettings settings;
 
 		bool showDebugInfo;
+
+		int camW;
+		int camH;
 };
 
 #endif

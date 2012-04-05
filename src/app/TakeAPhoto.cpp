@@ -327,9 +327,7 @@ void TakeAPhoto::exitPressed(bool & pressed){
 }
 
 void TakeAPhoto::newFrame(ofPixels & newFrame){
-	ofLog(OF_LOG_NOTICE, "newFrame" );
 	if(state==TakingPhoto && video){
-		ofLog(OF_LOG_NOTICE, "newFrame storing pixels");
 		photoPixels = video->getPixelsRef();
 		pixelsCopied = true;
 	}

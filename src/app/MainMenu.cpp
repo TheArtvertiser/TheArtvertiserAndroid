@@ -29,7 +29,7 @@ MainMenu::MainMenu()
 }
 
 void MainMenu::setup(){
-	ofAddListener(ofEvents.windowResized,this,&MainMenu::windowResized);
+	ofAddListener(ofEvents().windowResized,this,&MainMenu::windowResized);
 
 	ofImage cameraIcon;
 	cameraIcon.loadImage("icons/camera.png");

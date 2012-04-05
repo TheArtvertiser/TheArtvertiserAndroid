@@ -29,6 +29,9 @@
 int camW = 640;
 int camH = 480;
 
+//static const string SERVER_URL = "http://192.168.1.134:8888";
+static const string SERVER_URL = "http://localhost:8888";
+
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
 	//ofSleepMillis(5000);
@@ -85,12 +88,12 @@ void ArtvertiserApp::setup(){
 	takeAPhoto.setGeo(geo);
 	takeAPhoto.setup(grabber);
 
-	onlineArtverts.setURL("http://192.168.1.134:8888");
+	onlineArtverts.setURL(SERVER_URL);
 	onlineArtverts.setIconCache(iconCache);
 	onlineArtverts.setComm(comm);
 	onlineArtverts.setup();
 
-	comm->setURL("http://192.168.1.134:8888");
+	comm->setURL(SERVER_URL);
 	comm->start();
 
 	state = Menu;
@@ -165,7 +168,13 @@ void ArtvertiserApp::update(){
 			refreshArtvert = false;
 		}
 		if(artvertiser.getState()!=Detector::Initializing){
+			
 			grabber.update();
+#ifdef TARGET_OSX
+			if ( grabber.isFrameNew() )
+				artvertiser.newFrame( grabber.getPixelsRef() );
+#endif
+			
 		}else{
 			circularPB.update();
 		}

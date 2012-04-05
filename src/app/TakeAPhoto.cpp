@@ -247,6 +247,14 @@ void TakeAPhoto::updateState(Transition transition){
 }
 
 void TakeAPhoto::update(){
+	
+#ifdef TARGET_OSX
+	if ( ((ofVideoGrabber*)video)->isFrameNew() )
+	{
+		newFrame( video->getPixelsRef() );
+	}
+#endif
+	
 
 	if(videoWidth==0 || videoHeight==0){
 		ofResizeEventArgs window;
@@ -255,6 +263,8 @@ void TakeAPhoto::update(){
 		windowResized(window);
 	}
 	borderFrame.update();
+	
+	
 
 	if(state==PhotoTaken && pixelsCopied){
 		photo = photoPixels;
@@ -317,7 +327,9 @@ void TakeAPhoto::exitPressed(bool & pressed){
 }
 
 void TakeAPhoto::newFrame(ofPixels & newFrame){
+	ofLog(OF_LOG_NOTICE, "newFrame" );
 	if(state==TakingPhoto && video){
+		ofLog(OF_LOG_NOTICE, "newFrame storing pixels");
 		photoPixels = video->getPixelsRef();
 		pixelsCopied = true;
 	}

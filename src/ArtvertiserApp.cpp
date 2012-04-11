@@ -23,6 +23,7 @@
 #include "Artvert.h"
 #include "PersistanceEngine.h"
 #include "Label.h"
+#include "Binocular.h"
 
 //void ofSoundShutdown(){};
 
@@ -31,6 +32,8 @@ int camH = 480;
 
 //static const string SERVER_URL = "http://192.168.1.134:8888";
 static const string SERVER_URL = "http://localhost:8888";
+
+static const bool RUNNING_ON_BINOCULARS = true;
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
@@ -62,6 +65,12 @@ void ArtvertiserApp::setup(){
 #ifdef TARGET_ANDROID
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
+	
+	bool runningOnBinoculars = RUNNING_ON_BINOCULARS;
+	if ( runningOnBinoculars )
+	{
+		Binocular::get()->setup( true );
+	}
 
 	grabber.setDeviceID(0);
 	grabber.setDesiredFrameRate(60);

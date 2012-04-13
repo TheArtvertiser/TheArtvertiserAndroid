@@ -81,7 +81,7 @@
 
 		ofPtr<gui::IconCache> iconCache;
 		ofPtr<ofxGeoLocation> geo;
-
+		
 		bool allocated;
 
 		bool refreshArtvert;

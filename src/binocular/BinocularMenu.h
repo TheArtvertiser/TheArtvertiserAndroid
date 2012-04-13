@@ -10,6 +10,9 @@
 
 #include "ofMain.h"
 #include "BinocularButtons.h"
+#include "IconCache.h"
+#include "Artvert.h"
+#include "ArtvertInfo.h"
 
 class BinocularMenu 
 {
@@ -17,11 +20,29 @@ public:
 	
 	void setup( BinocularButtons& buttons );
 
-private:
+	ofEvent<ofFile> artvertSelected;
+	
+private:	
+	void update( ofEventArgs& args );
+	void draw( ofEventArgs& args );
+	
+	void updateArtvertList();
+
 	void redButtonPressed( bool& tf );
 	void greenButtonPressed( bool& tf );
 	void blueButtonPressed( bool& tf );
 	void redAndBlueButtonPressed( bool& tf );
+	
+	
+	
+	
+	bool showing;
+	int selectionIndex;
+	
+	vector<Artvert> artverts;
+	ofTrueTypeFont font;
+
+	gui::IconCache iconCache;
 	
 };
 

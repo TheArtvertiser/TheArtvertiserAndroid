@@ -12,6 +12,7 @@
 		28d113b94b2437937ec1a8885bb9803c /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93fa7d544754488b1c9440d921b2aa7d /* tinyxmlparser.cpp */; };
 		2D6325E91535ADAC008B799B /* Binocular.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6325E71535ADAC008B799B /* Binocular.cpp */; };
 		2D6325EC1535ADD2008B799B /* BinocularMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6325EA1535ADD2008B799B /* BinocularMenu.cpp */; };
+		2D6CC0121537451700B37D5F /* CommandlineParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6CC0101537451700B37D5F /* CommandlineParser.cpp */; };
 		2D700B70152DEAC8004EC85B /* Detector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D700B0D152DEAC7004EC85B /* Detector.cpp */; };
 		2D700B71152DEAC8004EC85B /* ofxFern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D700B10152DEAC7004EC85B /* ofxFern.cpp */; };
 		2D700B72152DEAC8004EC85B /* cv_fast_10.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2D700B13152DEAC7004EC85B /* cv_fast_10.cc */; };
@@ -142,6 +143,8 @@
 		2D6325E81535ADAC008B799B /* Binocular.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Binocular.h; sourceTree = "<group>"; };
 		2D6325EA1535ADD2008B799B /* BinocularMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BinocularMenu.cpp; sourceTree = "<group>"; };
 		2D6325EB1535ADD2008B799B /* BinocularMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinocularMenu.h; sourceTree = "<group>"; };
+		2D6CC0101537451700B37D5F /* CommandlineParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CommandlineParser.cpp; path = app/CommandlineParser.cpp; sourceTree = "<group>"; };
+		2D6CC0111537451700B37D5F /* CommandlineParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommandlineParser.h; path = app/CommandlineParser.h; sourceTree = "<group>"; };
 		2D700B0B152DEAC7004EC85B /* artvert_constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = artvert_constants.h; sourceTree = "<group>"; };
 		2D700B0D152DEAC7004EC85B /* Detector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Detector.cpp; sourceTree = "<group>"; };
 		2D700B0E152DEAC7004EC85B /* Detector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Detector.h; sourceTree = "<group>"; };
@@ -835,8 +838,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				2DD111131535A15C00D16042 /* binocular */,
 				2D700B09152DEAC7004EC85B /* TheArtvertiserCommon */,
+				2DD111131535A15C00D16042 /* binocular */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				be9dd360f550b0df4d357e7bd03dbc87 /* app */,
 				c4f2d5fdc5ff4af7685f5c8aab43a2a6 /* ArtvertiserApp.cpp */,
@@ -900,6 +903,8 @@
 				e5d7c8562a58919cef5534a9a3caf149 /* OnlineArtverts.h */,
 				bd8a7f57ebdc7cb0dc9016d13051a739 /* TakeAPhoto.cpp */,
 				c75c0ead26eb23dfae68f387f0e7fe30 /* TakeAPhoto.h */,
+				2D6CC0101537451700B37D5F /* CommandlineParser.cpp */,
+				2D6CC0111537451700B37D5F /* CommandlineParser.h */,
 			);
 			name = app;
 			sourceTree = "<group>";
@@ -1139,6 +1144,7 @@
 				2DD111161535A15C00D16042 /* BinocularButtons.cpp in Sources */,
 				2D6325E91535ADAC008B799B /* Binocular.cpp in Sources */,
 				2D6325EC1535ADD2008B799B /* BinocularMenu.cpp in Sources */,
+				2D6CC0121537451700B37D5F /* CommandlineParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

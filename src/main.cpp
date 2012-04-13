@@ -28,9 +28,13 @@
 	#include "ofAppGlutWindow.h"
 #endif
 
+#include "CommandlineParser.h"
 
 
-int main(){
+int main( int argc, char** argv ){
+	
+	CommandlineParser::get()->parse( argc, argv );
+	
 #ifdef TARGET_ANDROID
 	ofPtr<ofAppAndroidWindow> window (new ofAppAndroidWindow);
 #else

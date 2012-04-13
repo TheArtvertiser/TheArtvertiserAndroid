@@ -24,6 +24,7 @@
 #include "PersistanceEngine.h"
 #include "Label.h"
 #include "Binocular.h"
+#include "CommandlineParser.h"
 
 //void ofSoundShutdown(){};
 
@@ -31,9 +32,8 @@ int camW = 640;
 int camH = 480;
 
 //static const string SERVER_URL = "http://192.168.1.134:8888";
-static const string SERVER_URL = "http://localhost:8888";
-
-static const bool RUNNING_ON_BINOCULARS = true;
+//static const string SERVER_URL = "http://localhost:8888";
+static const string SERVER_URL = "http://192.168.1.4:8888";
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
@@ -66,10 +66,12 @@ void ArtvertiserApp::setup(){
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
 	
-	bool runningOnBinoculars = RUNNING_ON_BINOCULARS;
+	bool runningOnBinoculars = CommandlineParser::get()->isRunningOnBinoculars();
 	if ( runningOnBinoculars )
 	{
 		Binocular::get()->setup( true );
+//		ofAddListener( Binocular::get()->getArtvertSelectedEvent(), this, &ArtvertiserApp::artvertSelected );
+
 	}
 
 	grabber.setDeviceID(0);
@@ -122,9 +124,9 @@ void ArtvertiserApp::setup(){
 
 	ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
 	ofAddListener(menu.downloadPressedE,this,&ArtvertiserApp::downloadPressed);
-	ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::advertSelected);
+	ofAddListener(menu.advertSelectedEvent,this,&ArtvertiserApp::advertSelected);
 
-	ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
+	ofAddListener(artvertInfo.artvertSelectedEvent,this,&ArtvertiserApp::artvertSelected);
 
 
 	ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);

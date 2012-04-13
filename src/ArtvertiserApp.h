@@ -32,6 +32,7 @@
 #include "ofxGeoLocation.h"
 #include "OnlineArtverts.h"
 
+#include "Binocular.h"
 								
 #ifdef TARGET_ANDROID
 	#include "ofxAndroid.h"
@@ -65,6 +66,9 @@
 		bool backPressed();
 
 	private:
+		
+		void artvertSelectedBinoculars( Binocular::ArtvertSelectedEventInfo& info );
+		
 		Detector artvertiser;
 		TakeAPhoto takeAPhoto;
 		ofPtr<Comm> comm;

@@ -7,6 +7,7 @@
 //
 
 #include "CommandlineParser.h"
+#include "ofMain.h"
 
 CommandlineParser* CommandlineParser::get()
 {
@@ -22,36 +23,13 @@ void CommandlineParser::parse( int argc, char **argv )
 {
 	runningOnBinoculars = false;
 	
-	int c;
-	while ((c = getopt (argc, argv, "b")) != -1)
+
+	for ( int i=0; i<argc; i++ )
 	{
-	   switch (c)
-	   {
-		   case 'b':
-			   runningOnBinoculars = true;
-			   break;
-			   /*
-		   case 'b':
-			   bflag = 1;
-			   break;
-		   case 'c':
-			   cvalue = optarg;
-			   break;
-		   case '?':
-			   if (optopt == 'c')
-				   fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-			   else if (isprint (optopt))
-				   fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-			   else
-				   fprintf (stderr,
-							"Unknown option character `\\x%x'.\n",
-							optopt);
-			   return 1;
-				*/
-		   default:
-			   fprintf( stderr, "Option ignored: -%c\n", optopt );
-			   break;
-	   }
+		if ( string(argv[i]) == "-b" )
+		   runningOnBinoculars = true;
+		else
+			ofLog( OF_LOG_WARNING, "Option ignored: %s\n", argv[i] );
 	}
 	
 }

@@ -79,11 +79,22 @@ void Comm::downloadArtvert(Artvert & artvert){
 			compressed.changeMode(ofFile::WriteOnly,true);
 			compressed << resp_compressed.responseBody;
 			compressed.close();
-
+			
 			ofImage model;
 			model.setUseTexture(false);
-			model.loadImage(compressed.getAbsolutePath());
+			model.loadImage(artvert.getCompressedImage().getAbsolutePath());
 			model.saveImage(artvert.getModel());
+		}
+	}
+	
+	if(!artvert.getLocationFile().exists()){
+		ofxHttpResponse resp_location = httpClient.getUrl(url+"/"+artvert.getUID()+".bmp.location");
+		if(resp_location.status==200){
+			ofLogVerbose("Comm", "got location correctly, saving " + ofToString(resp_location.responseBody.size()) + " bytes");
+			ofFile location = artvert.getLocationFile();
+			location.changeMode(ofFile::WriteOnly,true);
+			location << resp_location.responseBody;
+			location.close();
 		}
 	}
 
@@ -103,10 +114,14 @@ void Comm::downloadArtvert(Artvert & artvert){
 		if(resp_md5.status==200){
 			ofLogVerbose("Comm", "got md5 correctly, saving " + ofToString(resp_md5.responseBody.size()) + " bytes");
 			ofFile md5(artvert.getMD5File().path()+".notready");
+			ofLogVerbose("Comm", "md5 file has path "+md5.getAbsolutePath() );
 			md5.changeMode(ofFile::WriteOnly,true);
 			md5 << resp_md5.responseBody;
+			ofLogVerbose("Comm", "md5 file written, has path "+md5.path() );
+			string md5Path = md5.path();
 			md5.close();
-			md5.moveTo(artvert.getMD5File().path());
+			// oFFile loses its path when it's closed.
+			ofFile( md5Path ).moveTo(artvert.getMD5File().path());
 			if(!artvert.checkIntegrity()){
 				ofLogWarning("Comm", "error md5 doesn't match for " + artvert.getUID() + " will retry later");
 				ofLogVerbose("Comm", "downloaded md5: " + artvert.getStoredMD5());
@@ -203,6 +218,7 @@ void Comm::threadedFunction(){
 		for(int i=0;i<(int)artverts.size();i++){
 			if(!artverts[i].isReady()){
 				if(checkAnalized(artverts[i])){
+					ofLogVerbose( "Comm", "Comm::threadedFunction calling downloadAnalisys" );
 					downloadAnalisys(artverts[i]);
 					if(artverts[i].isReady()){
 						ofNotifyEvent(gotAnalysisE,artverts[i],this);

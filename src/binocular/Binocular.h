@@ -19,6 +19,16 @@ public:
 	
 	void setup( bool bDebug = false );
 
+	class ArtvertSelectedEventInfo 
+	{
+	public:
+		ArtvertSelectedEventInfo( Artvert& _selAdvert, ofFile& _selArtvert )
+			: selectedAdvert( _selAdvert ), selectedArtvert( _selArtvert ) {};
+		Artvert& selectedAdvert;
+		ofFile selectedArtvert;
+	};
+	
+	ofEvent< ArtvertSelectedEventInfo > artvertSelectedEvent;
 	
 private:
 	

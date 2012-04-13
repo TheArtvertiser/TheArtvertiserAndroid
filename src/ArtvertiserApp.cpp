@@ -16,7 +16,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU Lesser General Public License
- along with The Artvertiser for Android.  If not, see <http://www.gnu.org/licenses/>.
+ along with The Artvertis	er for Android.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ArtvertiserApp.h"
@@ -32,8 +32,8 @@ int camW = 640;
 int camH = 480;
 
 //static const string SERVER_URL = "http://192.168.1.134:8888";
-//static const string SERVER_URL = "http://localhost:8888";
-static const string SERVER_URL = "http://192.168.1.4:8888";
+static const string SERVER_URL = "http://localhost:8888";
+//static const string SERVER_URL = "http://192.168.1.4:8888";
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
@@ -66,8 +66,7 @@ void ArtvertiserApp::setup(){
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
 	
-	bool runningOnBinoculars = CommandlineParser::get()->isRunningOnBinoculars();
-	if ( runningOnBinoculars )
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
 	{
 		Binocular::get()->setup( true );
 //		ofAddListener( Binocular::get()->getArtvertSelectedEvent(), this, &ArtvertiserApp::artvertSelected );
@@ -107,7 +106,14 @@ void ArtvertiserApp::setup(){
 	comm->setURL(SERVER_URL);
 	comm->start();
 
-	state = Menu;
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
+	{
+		state = Tracking;
+	}
+	else
+	{
+		state = Menu;
+	}
 
 
 	circularPB.setRadius(30);
@@ -124,13 +130,19 @@ void ArtvertiserApp::setup(){
 
 	ofAddListener(menu.cameraPressedE,this,&ArtvertiserApp::cameraPressed);
 	ofAddListener(menu.downloadPressedE,this,&ArtvertiserApp::downloadPressed);
-	ofAddListener(menu.advertSelectedEvent,this,&ArtvertiserApp::advertSelected);
+	ofAddListener(menu.artvertSelectedE,this,&ArtvertiserApp::advertSelected);
 
-	ofAddListener(artvertInfo.artvertSelectedEvent,this,&ArtvertiserApp::artvertSelected);
+	ofAddListener(artvertInfo.artvertSelectedE,this,&ArtvertiserApp::artvertSelected);
 
 
 	ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);
 
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
+	{
+		ofAddListener( Binocular::get()->artvertSelectedEvent, this, &ArtvertiserApp::artvertSelectedBinoculars );
+	}
+
+	
 	ofSetLogLevel(OF_LOG_VERBOSE);
 }
 
@@ -251,6 +263,8 @@ void ArtvertiserApp::draw(){
 
 //--------------------------------------------------------------
 void ArtvertiserApp::keyPressed  (int key){
+	if ( key == OF_KEY_BACKSPACE )
+		backPressed();
 }
 
 //--------------------------------------------------------------
@@ -350,6 +364,30 @@ void ArtvertiserApp::advertSelected(Artvert & artvert){
 	state = Info;
 	artvertInfo.show(artvert);
 	menu.disableEvents();
+}
+
+void ArtvertiserApp::artvertSelectedBinoculars(Binocular::ArtvertSelectedEventInfo &info)
+{
+	subs_img.setUseTexture(false);
+	subs_img.loadImage( info.selectedArtvert );
+	if ( !subs_img.bAllocated()) allocated = false;
+	refreshArtvert = true;
+	
+	imgQuad[0].set(0,0);
+	imgQuad[1].set(subs_img.getWidth(),0);
+	imgQuad[2].set(subs_img.getWidth(),subs_img.getHeight());
+	imgQuad[3].set(0,subs_img.getHeight());
+	
+	state = Tracking;
+	Artvert & artvert = info.selectedAdvert;
+	if ( artvert.hasAlias() )
+	{
+		artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+		ofLogVerbose("ArtvertiserApp", "artvert.hasAlias()");
+	}else{
+		ofLogVerbose("ArtvertiserApp", "doesn't: artvert.hasAlias()");
+		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+	}
 }
 
 //--------------------------------------------------------------

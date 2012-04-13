@@ -38,8 +38,12 @@ private:
 	
 	bool showing;
 	int selectionIndex;
+	vector<pair<int, int> > advertArtworkPairs;
 	
-	vector<Artvert> artverts;
+	vector<Artvert> adverts;
+	vector<vector<ofFile > > artworkFiles;
+	
+	
 	ofTrueTypeFont font;
 
 	gui::IconCache iconCache;

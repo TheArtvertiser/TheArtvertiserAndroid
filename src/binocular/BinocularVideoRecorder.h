@@ -22,7 +22,7 @@ public:
 	void toggleRecording();
 	bool isRecording() { return recording; }
 	
-	void addFrame( const ofPixels& pixels );
+	void addFrame( ofPixels& pixels );
 	
 	void draw(ofEventArgs &args);
 	

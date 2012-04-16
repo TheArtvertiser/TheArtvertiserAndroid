@@ -16,11 +16,11 @@ void BinocularVideoRecorder::setup( ofVideoGrabber& grabber )
 	setWidthHeight( grabber.getWidth(), grabber.getHeight() );
 	
 #ifdef TARGET_ANDROID
-	ofxAndroidVideoGrabber * grabber = (ofxAndroidVideoGrabber*) video->getGrabber().get();
+	ofxAndroidVideoGrabber * androidGrabber = (ofxAndroidVideoGrabber*) grabber.getGrabber().get();
 	ofAddListener(grabber->newFrameE,this,&BinocularVideoRecorder::addFrame);
 #elif defined (TARGET_LINUX)
-	ofGstVideoGrabber * grabber = (ofGstVideoGrabber*) video->getGrabber().get();
-	ofGstVideoUtils * videoUtils = grabber->getGstVideoUtils();
+	ofGstVideoGrabber * gstGrabber = (ofGstVideoGrabber*) grabber.getGrabber().get();
+	ofGstVideoUtils * videoUtils = gstGrabber->getGstVideoUtils();
 	ofAddListener(videoUtils->bufferEvent,this,&BinocularVideoRecorder::addFrame);
 #endif
 
@@ -58,7 +58,7 @@ void BinocularVideoRecorder::toggleRecording()
 	}
 }
 
-void BinocularVideoRecorder::addFrame( const ofPixels& pixels )
+void BinocularVideoRecorder::addFrame( ofPixels& pixels )
 {
 	if ( !recording )
 		return;

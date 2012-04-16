@@ -10,21 +10,21 @@ OF_ROOT = ../../..
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = -Isrc/comm  -Isrc/app -Isrc/ofxHttpUtils/src 
-USER_CFLAGS += -I../TheArtvertiserCommon/gui -I../TheArtvertiserCommon -I../TheArtvertiserCommon/ferns_demo-1.1 -I../TheArtvertiserCommon/FAST -I../TheArtvertiserCommon/persistance -I../TheArtvertiserCommon/cv -I../TheArtvertiserCommon/ofxGeoLocation -I../TheArtvertiserCommon/ofxMD5 -I../TheArtvertiserCommon/ofxMD5/libs/md5-1.3.0
+USER_CFLAGS = -Isrc/comm  -Isrc/app -Isrc/ofxHttpUtils/src  -Isrc/binocular -Isrc/ofxMovieExporter/src -I/usr/include/libavcodec -I/usr/include/libavformat -I/usr/include/libswscale -D__STDC_CONSTANT_MACROS
+USER_CFLAGS += -I../TheArtvertiserCommon/gui -I../TheArtvertiserCommon -I../TheArtvertiserCommon/ferns_demo-1.1 -I../TheArtvertiserCommon/FAST -I../TheArtvertiserCommon/persistance -I../TheArtvertiserCommon/cv -I../TheArtvertiserCommon/ofxGeoLocation -I../TheArtvertiserCommon/ofxMD5 -I../TheArtvertiserCommon/ofxMD5/libs/md5-1.3.0 -I/usr/include/libavutil 
 
 
 # USER_LDFLAGS allows to pass custom flags to the linker
 # for example libraries like:
 # USER_LD_FLAGS = libs/libawesomelib.a
 
-USER_LD_FLAGS =
+USER_LD_FLAGS = 
 
 
 # use this to add system libraries for example:
 # USER_LIBS = -lpango
 
-USER_LIBS =
+USER_LIBS = -lavcodec -lavformat -lavutil -lswscale
 
 
 # change this to add different compiler optimizations to your project

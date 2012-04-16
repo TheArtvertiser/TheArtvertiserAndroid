@@ -16,8 +16,28 @@ Binocular* Binocular::get() {
 	return instance;
 }
 
-void Binocular::setup( bool bDebug )
+void Binocular::setup( ofVideoGrabber& grabber, bool bDebug )
 {
 	buttons.setup( bDebug );
+	
 	menu.setup( buttons );
+	
+	recorder.setup( grabber );
+	
+	ofAddListener( buttons.redAndBlueButtons, this, &Binocular::redAndBlueButtonsPressed );
+	
+
 }
+
+void Binocular::redAndBlueButtonsPressed( bool &pressed )
+{
+	if ( pressed )
+		recorder.toggleRecording();
+}
+
+#ifdef TARGET_OSX
+void Binocular::gotFrame( const ofPixels& pixels )
+{
+	recorder.addFrame( pixels );
+}
+#endif

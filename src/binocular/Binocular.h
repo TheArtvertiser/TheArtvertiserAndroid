@@ -10,6 +10,7 @@
 
 #include "BinocularButtons.h"
 #include "BinocularMenu.h"
+#include "BinocularVideoRecorder.h"
 
 class Binocular
 {
@@ -17,8 +18,12 @@ public:
 	
 	static Binocular* get();
 	
-	void setup( bool bDebug = false );
+	void setup( ofVideoGrabber& grabber, bool bDebug = false );
 
+#ifdef TARGET_OSX
+	void gotFrame( const ofPixels& pixels );
+#endif
+	
 	class ArtvertSelectedEventInfo 
 	{
 	public:
@@ -27,15 +32,17 @@ public:
 		Artvert& selectedAdvert;
 		ofFile selectedArtvert;
 	};
-	
 	ofEvent< ArtvertSelectedEventInfo > artvertSelectedEvent;
 	
 private:
+	
+	void redAndBlueButtonsPressed( bool &pressed );
 	
 	
 	
 	BinocularMenu menu;
 	BinocularButtons buttons;
+	BinocularVideoRecorder recorder;
 	
 };
 

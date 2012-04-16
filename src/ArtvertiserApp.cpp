@@ -65,19 +65,18 @@ void ArtvertiserApp::setup(){
 #ifdef TARGET_ANDROID
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
-	
-	if ( CommandlineParser::get()->isRunningOnBinoculars() )
-	{
-		Binocular::get()->setup( true );
-//		ofAddListener( Binocular::get()->getArtvertSelectedEvent(), this, &ArtvertiserApp::artvertSelected );
-
-	}
 
 	grabber.setDeviceID(0);
 	grabber.setDesiredFrameRate(60);
 	grabber.setUseTexture(false);
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
+	
+
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
+	{
+		Binocular::get()->setup( grabber, /*bDebug*/ true );
+	}
 
 	counter = 0;
 	allocated = true;
@@ -195,7 +194,10 @@ void ArtvertiserApp::update(){
 			grabber.update();
 #ifdef TARGET_OSX
 			if ( grabber.isFrameNew() )
+			{
 				artvertiser.newFrame( grabber.getPixelsRef() );
+				Binocular::get()->gotFrame( grabber.getPixelsRef() );
+			}
 #endif
 			
 		}else{

@@ -11,17 +11,22 @@
 
 void BinocularButtons::setup( bool bDebug )
 {
+	
+	ofAddListener(ofEvents().update, this, &BinocularButtons::update);  
+	
+}
+
+void BinocularButtons::tryToConnect()
+{
 	// setup the first device for 9600
 #ifdef TARGET_OSX
 	if ( bDebug )
 		serialConnection.listDevices();
-	serialConnection.setup( 0, 9600 );
+	isConnected = serialConnection.setup( 0, 9600 );
 #else
-	serialConnection.setup("/dev/ttyUSB0", 9600);
+	isConnected = serialConnection.setup( 0, 9600 );
+//	serialConnection.setup("/dev/ttyUSB0", 9600);
 #endif
-	
-	ofAddListener(ofEvents().update, this, &BinocularButtons::update);  
-	
 }
 
 void BinocularButtons::shutdown()
@@ -33,7 +38,9 @@ void BinocularButtons::update( ofEventArgs& args )
 {
 	// read button state
 	int readCount =0;
-	if ( serialConnection.available() >= 4 )
+	if ( !isConnected )
+		tryToConnect();
+	if ( isConnected && serialConnection.available() >= 4 )
 	{
 		char bytesRead[5] = { 0, 0, 0, 0, 0 }; // 0|1 0|1 0|1 \n <null>
 		for ( int i=0; i<4; i++ )

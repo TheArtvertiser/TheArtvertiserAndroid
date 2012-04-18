@@ -29,11 +29,13 @@ public:
 	
 private:
 	
+	void tryToConnect();
 	void update( ofEventArgs& args );
 	
 	string buttonState; // a 3-char string with '0' = off and '1' = on for each button
 	
 	bool buttonStateChanged; 
+	bool isConnected;
 	string currentRawButtonState;
 
 	ofSerial serialConnection;

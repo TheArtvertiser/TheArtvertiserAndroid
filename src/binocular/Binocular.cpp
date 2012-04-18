@@ -36,7 +36,7 @@ void Binocular::redAndBlueButtonsPressed( bool &pressed )
 }
 
 #ifdef TARGET_OSX
-void Binocular::gotFrame( const ofPixels& pixels )
+void Binocular::gotFrame(  ofPixels& pixels )
 {
 	recorder.addFrame( pixels );
 }

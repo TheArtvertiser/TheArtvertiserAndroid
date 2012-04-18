@@ -21,7 +21,7 @@ public:
 	void setup( ofVideoGrabber& grabber, bool bDebug = false );
 
 #ifdef TARGET_OSX
-	void gotFrame( const ofPixels& pixels );
+	void gotFrame(  ofPixels& pixels );
 #endif
 	
 	class ArtvertSelectedEventInfo 

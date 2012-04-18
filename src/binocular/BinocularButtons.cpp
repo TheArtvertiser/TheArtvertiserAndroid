@@ -20,8 +20,7 @@ void BinocularButtons::tryToConnect()
 {
 	// setup the first device for 9600
 #ifdef TARGET_OSX
-	if ( bDebug )
-		serialConnection.listDevices();
+	serialConnection.listDevices();
 	isConnected = serialConnection.setup( 0, 9600 );
 #else
 	isConnected = serialConnection.setup( 0, 9600 );

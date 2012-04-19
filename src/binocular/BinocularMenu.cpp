@@ -13,6 +13,7 @@
 #include "Binocular.h"
 
 static const float FONT_SIZE = 28.0f;
+static const float MENU_TIMEOUT = 10.0f;
 
 
 void BinocularMenu::setup( BinocularButtons& buttons )
@@ -35,6 +36,8 @@ void BinocularMenu::setup( BinocularButtons& buttons )
 void BinocularMenu::update( ofEventArgs& args )
 {
 	
+	if ( showing && ofGetElapsedTimef() > hideTimeout )
+		showing = false;
 }
 
 void BinocularMenu::draw( ofEventArgs& args )
@@ -121,6 +124,7 @@ void BinocularMenu::greenButtonPressed( bool& tf )
 		{
 			updateArtvertList();
 			showing = true;
+			hideTimeout = ofGetElapsedTimef() + MENU_TIMEOUT;
 		}
 		else
 		{

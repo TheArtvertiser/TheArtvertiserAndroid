@@ -37,11 +37,13 @@ private:
 	
 	
 	bool showing;
+	float hideTimeout;
 	int selectionIndex;
 	vector<pair<int, int> > advertArtworkPairs;
 	
 	vector<Artvert> adverts;
 	vector<vector<ofFile > > artworkFiles;
+
 	
 	
 	ofTrueTypeFont font;

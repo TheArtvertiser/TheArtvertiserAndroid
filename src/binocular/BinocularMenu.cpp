@@ -12,7 +12,7 @@
 #include "Artvert.h"
 #include "Binocular.h"
 
-static const float FONT_SIZE = 24.0f;
+static const float FONT_SIZE = 28.0f;
 
 
 void BinocularMenu::setup( BinocularButtons& buttons )
@@ -47,7 +47,18 @@ void BinocularMenu::draw( ofEventArgs& args )
 		float lineHeight = fontSize+hGap;
 
 		// offset to keep the selection on-screen
-		float yOffset = FONT_SIZE + max(selectionIndex-5,0)*lineHeight;
+		int linesPerScreen = float(ofGetHeight())/lineHeight;
+		int midLine = linesPerScreen/2;
+		float yOffset = FONT_SIZE;
+		if ( selectionIndex > midLine )
+		{
+			if ( selectionIndex < advertArtworkPairs.size()-midLine )
+				yOffset -= lineHeight*(selectionIndex-midLine);
+			else
+				yOffset -= lineHeight*(advertArtworkPairs.size()-2*midLine);
+		}
+				
+		//float yOffset = FONT_SIZE - max(min(advertArtworkPairs.size()-4,selectionIndex-8),0)*lineHeight;
 
 		ofSetColor( ofColor::black );
 		

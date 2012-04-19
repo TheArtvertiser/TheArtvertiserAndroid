@@ -261,7 +261,8 @@ void ArtvertiserApp::draw(){
 			w = float(camW)/float(camH)*float(h);
 			x = (ofGetWidth() - w)/2;
 			scale = float(w)/float(camW);
-			scale *= float(camW)/float(detectW);
+			if ( detectW != -1 )
+				scale *= float(camW)/float(detectW);
 			grabber.draw(x,0,w,h);
 		}else{
 			circularPB.draw();

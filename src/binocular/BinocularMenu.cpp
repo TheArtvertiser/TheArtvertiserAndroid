@@ -12,7 +12,7 @@
 #include "Artvert.h"
 #include "Binocular.h"
 
-static const float FONT_SIZE = 32.0f;
+static const float FONT_SIZE = 24.0f;
 
 
 void BinocularMenu::setup( BinocularButtons& buttons )

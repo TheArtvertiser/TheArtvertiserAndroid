@@ -104,6 +104,7 @@ void ArtvertiserApp::setup(){
 	if ( CommandlineParser::get()->isRunningOnBinoculars() )
 	{
 		Binocular::get()->setup( grabber, /*bDebug*/ true );
+		ofHideCursor();
 	}
 
 	counter = 0;
@@ -260,6 +261,7 @@ void ArtvertiserApp::draw(){
 			w = float(camW)/float(camH)*float(h);
 			x = (ofGetWidth() - w)/2;
 			scale = float(w)/float(camW);
+			scale *= float(camW)/float(detectW);
 			grabber.draw(x,0,w,h);
 		}else{
 			circularPB.draw();
@@ -272,20 +274,23 @@ void ArtvertiserApp::draw(){
 			subs_img.draw(0,0);
 			ofPopMatrix();
 		}
-		ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
-		ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
+		if ( !CommandlineParser::get()->isRunningOnBinoculars() )
+		{
+			ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
+			ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
 
-		if(artvertiser.getState()==Detector::Initializing){
-			ofDrawBitmapString("Initializing", x+20, 60);
-		}else if(artvertiser.isDetected()){
-			ofDrawBitmapString("Detected", x+20, 60);
-		}else if(artvertiser.isTracked()){
-			ofDrawBitmapString("Tracked", x+20, 60);
-		}else{
-			ofDrawBitmapString("NotDetected", x+20, 60);
+			if(artvertiser.getState()==Detector::Initializing){
+				ofDrawBitmapString("Initializing", x+20, 60);
+			}else if(artvertiser.isDetected()){
+				ofDrawBitmapString("Detected", x+20, 60);
+			}else if(artvertiser.isTracked()){
+				ofDrawBitmapString("Tracked", x+20, 60);
+			}else{
+				ofDrawBitmapString("NotDetected", x+20, 60);
+			}
+
+			if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
 		}
-
-		if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
 		break;
 	}
 }

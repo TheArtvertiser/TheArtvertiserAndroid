@@ -28,12 +28,16 @@
 
 //void ofSoundShutdown(){};
 
-int camW = 800;
+/*int camW = 800;
 int camH = 600;
 int detectW = 640;
-int detectH = 480;
-//int detectW = -1;
-//int detectH = -1;
+int detectH = 480;*/
+int camW = 640;
+int camH = 480;
+int detectW = -1;
+int detectH = -1;
+//int detectW = 640;
+//int detectH = 480;
 
 //static const string SERVER_URL = "http://192.168.1.134:8888";
 static const string SERVER_URL = "http://localhost:8888";
@@ -76,29 +80,9 @@ void ArtvertiserApp::setup(){
 	grabber.setUseTexture(false);
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
-	#ifdef TARGET_LINUX
-		ofLogNotice("ArtvertiserApp", "sleeping 10s to allow camera to recover");
-	// sleep to allow the camera to recover from init
-		sleep(10);
-	#endif
 
 
 
-	// drop the first few frames
-	int dropFrameCount = 0;
-	while ( dropFrameCount < 10 )
-	{
-		grabber.update();
-		if ( !grabber.isFrameNew() )
-			usleep( 1000*10 );
-		else
-		{
-	//		const ofPixels& p = grabber.getPixelsRef();
-			ofLogVerbose("ArtvertiserApp") << "dropping frame "/* << p.getWidth() << "x" << p.getHeight()*/;
-			dropFrameCount++;
-		}
-	}
-	
 	
 
 	if ( CommandlineParser::get()->isRunningOnBinoculars() )

@@ -113,6 +113,7 @@ void BinocularMenu::redButtonPressed( bool& tf )
 		selectionIndex--;
 		if ( selectionIndex<0 )
 			selectionIndex = advertArtworkPairs.size()-1;
+		hideTimeout = ofGetElapsedTimef() + MENU_TIMEOUT;
 	}
 }
 
@@ -149,6 +150,7 @@ void BinocularMenu::blueButtonPressed( bool& tf )
 		selectionIndex++;
 		if ( selectionIndex>=advertArtworkPairs.size() )
 			selectionIndex = 0;
+		hideTimeout = ofGetElapsedTimef() + MENU_TIMEOUT;
 	}
 }
 

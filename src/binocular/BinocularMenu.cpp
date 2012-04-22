@@ -14,6 +14,7 @@
 
 static const float FONT_SIZE = 28.0f;
 static const float MENU_TIMEOUT = 10.0f;
+static const float DEBOUNCE_TIMEOUT = 0.1f;
 
 
 void BinocularMenu::setup( BinocularButtons& buttons )
@@ -108,12 +109,13 @@ void BinocularMenu::updateArtvertList()
 
 void BinocularMenu::redButtonPressed( bool& tf )
 {
-	if ( tf && showing )
+	if ( tf && showing && redDebounceTimer < ofGetElapsedTimef() )
 	{
 		selectionIndex--;
 		if ( selectionIndex<0 )
 			selectionIndex = advertArtworkPairs.size()-1;
 		hideTimeout = ofGetElapsedTimef() + MENU_TIMEOUT;
+		redDebounceTimer = ofGetElapsedTimef() + DEBOUNCE_TIMEOUT;
 	}
 }
 
@@ -145,12 +147,13 @@ void BinocularMenu::greenButtonPressed( bool& tf )
 
 void BinocularMenu::blueButtonPressed( bool& tf )
 {
-	if ( tf && showing )
+	if ( tf && showing && blueDebounceTimer < ofGetElapsedTimef() )
 	{
 		selectionIndex++;
 		if ( selectionIndex>=advertArtworkPairs.size() )
 			selectionIndex = 0;
 		hideTimeout = ofGetElapsedTimef() + MENU_TIMEOUT;
+		blueDebounceTimer = ofGetElapsedTimef() + DEBOUNCE_TIMEOUT;
 	}
 }
 

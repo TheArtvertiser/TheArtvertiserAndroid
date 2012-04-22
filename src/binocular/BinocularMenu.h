@@ -38,6 +38,7 @@ private:
 	
 	bool showing;
 	float hideTimeout;
+	float redDebounceTimer, blueDebounceTimer;
 	int selectionIndex;
 	vector<pair<int, int> > advertArtworkPairs;
 	

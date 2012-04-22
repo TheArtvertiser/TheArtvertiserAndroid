@@ -35,6 +35,7 @@ private:
 	int width, height;
 	double lastFrameTime;
 	double framerate;
+	float debounceTimer;
 
 };
 

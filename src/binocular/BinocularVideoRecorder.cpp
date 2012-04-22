@@ -10,9 +10,11 @@
 
 static const float RECORD_FPS = 25.0f;
 static const float RECORD_TIMESTEP = 1.0f/RECORD_FPS;
+static const float DEBOUNCE_TIMEOUT = 1.0f;
 
 void BinocularVideoRecorder::setup( ofVideoGrabber& grabber )
 {
+	debounceTimer = 0;
 	setWidthHeight( grabber.getWidth(), grabber.getHeight() );
 	
 #ifdef TARGET_ANDROID
@@ -31,7 +33,7 @@ void BinocularVideoRecorder::setup( ofVideoGrabber& grabber )
 
 void BinocularVideoRecorder::toggleRecording()
 {
-	if ( !recording )
+	if ( !recording && debounceTimer < ofGetElapsedTimef() )
 	{
 		recording = true;
 		ofLogNotice( "BinocularVideo", "starting recording");
@@ -55,6 +57,7 @@ void BinocularVideoRecorder::toggleRecording()
 		
 		exporter.stop();
 		ofRemoveListener( ofEvents().draw, this, &BinocularVideoRecorder::draw );
+		debounceTimer = ofGetElapsedTimef() + DEBOUNCE_TIMEOUT;
 	}
 }
 

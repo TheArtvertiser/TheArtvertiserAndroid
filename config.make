@@ -10,8 +10,9 @@ OF_ROOT = ../../..
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = -Isrc/comm  -Isrc/app -Isrc/ofxHttpUtils/src 
+USER_CFLAGS = -Isrc/comm  -Isrc/app -Isrc/binocular
 USER_CFLAGS += $(addprefix -I, $(shell find ../TheArtvertiserCommon \( -name .git -prune -o -type d \) -and \( -not -name .git \) )) -I../TheArtvertiserCommon
+USER_CFLAGS += -D__STDC_CONSTANT_MACROS
 
 
 # USER_LDFLAGS allows to pass custom flags to the linker

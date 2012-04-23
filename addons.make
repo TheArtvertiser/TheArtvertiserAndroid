@@ -6,3 +6,4 @@ ofxThreadedImageLoader
 ofxThread
 ofxVectorMath
 ofxHttpUtils
+ofxMovieExporter

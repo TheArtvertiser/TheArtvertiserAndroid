@@ -117,29 +117,39 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>TheArtvertiserCommon</name>
+			<type>2</type>
+			<location>/home/arturo/Desktop/openFrameworks/apps/artvertiser/TheArtvertiserCommon</location>
+		</link>
+		<link>
+			<name>addons</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>ofAndroidLib_src</name>
 			<type>2</type>
 			<locationURI>_android_ofAndroidLib_4b0f72cd/src</locationURI>
 		</link>
 		<link>
-			<name>src/artvertiserCommon</name>
+			<name>addons/ofxAndroid</name>
 			<type>2</type>
-			<location>/home/arturo/Escritorio/openFrameworks/apps/artvertiser/artvertiserCommon</location>
+			<location>/home/arturo/Desktop/openFrameworks/addons/ofxAndroid</location>
 		</link>
 		<link>
-			<name>src/ofxAndroid</name>
+			<name>addons/ofxMovieExporter</name>
 			<type>2</type>
-			<location>/home/arturo/Escritorio/openFrameworks/addons/ofxAndroid</location>
+			<location>/home/arturo/Desktop/openFrameworks/addons/ofxMovieExporter</location>
 		</link>
 		<link>
-			<name>src/ofxOpenCv</name>
+			<name>addons/ofxOpenCv</name>
 			<type>2</type>
-			<location>/home/arturo/Escritorio/openFrameworks/addons/ofxOpenCv</location>
+			<location>/home/arturo/Desktop/openFrameworks/addons/ofxOpenCv</location>
 		</link>
 		<link>
-			<name>src/ofxXmlSettings</name>
+			<name>addons/ofxXmlSettings</name>
 			<type>2</type>
-			<location>/home/arturo/Escritorio/openFrameworks/addons/ofxXmlSettings</location>
+			<location>/home/arturo/Desktop/openFrameworks/addons/ofxXmlSettings</location>
 		</link>
 	</linkedResources>
 </projectDescription>

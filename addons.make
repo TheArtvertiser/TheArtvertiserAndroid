@@ -5,3 +5,4 @@ ofxXmlSettings
 ofxThreadedImageLoader
 ofxThread
 ofxVectorMath
+ofxHttpUtils

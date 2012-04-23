@@ -58,6 +58,7 @@ public:
 		TakingPhoto,
 		PhotoTaken,
 		SelectingQuad,
+		EnteringName
 	};
 
 	State getState();
@@ -113,6 +114,8 @@ private:
 
 	ofPtr<gui::Label> address;
 	gui::ExpandablePanel geoPanel;
+
+	string advertName;
 
 	// This class cannot be copied
 	const TakeAPhoto & operator=(const TakeAPhoto &){return *this;};

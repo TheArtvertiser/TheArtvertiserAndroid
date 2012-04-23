@@ -163,6 +163,7 @@ void TakeAPhoto::updateState(Transition transition){
 			geoPanel.compress();
 			ofAddListener(ofEvents().touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		}
+		break;
 
 	case TakingPhoto:
 		if(transition==PhotoPressed){
@@ -190,7 +191,19 @@ void TakeAPhoto::updateState(Transition transition){
 			borderFrame.clear();
 			borderFrame.addWidget(cameraButton);
 			borderFrame.addWidget(exitButton);
-
+			state = EnteringName;
+		}
+		if(transition==NoPressed){
+			ofLogVerbose("TakeAPhoto","photo cancelled");
+			warp.disableEvents();
+			borderFrame.clear();
+			borderFrame.addWidget(cameraButton);
+			borderFrame.addWidget(exitButton);
+			state = TakingPhoto;
+		}
+		break;
+	case EnteringName:
+		if(transition==YesPressed){
 			state = TakingPhoto;
 
 			ofDirectory("adverts").create();
@@ -199,6 +212,7 @@ void TakeAPhoto::updateState(Transition transition){
 
 			ofLogVerbose("TakeAPhoto","advert complete " + filename);
 			Artvert advert(filename,"adverts/");
+			advert.setAdvertName(advertName);
 
 			photo.saveImage(advert.getCompressedImage(),OF_IMAGE_QUALITY_BEST);
 			photo.saveImage(advert.getModel(),OF_IMAGE_QUALITY_BEST);
@@ -230,20 +244,15 @@ void TakeAPhoto::updateState(Transition transition){
 
 			ofLogVerbose("TakeAPhoto") << "md5 stored: " << md5sig;
 
-
-
 			ofNotifyEvent(newPhotoE,advert,this);
 		}
 		if(transition==NoPressed){
 			ofLogVerbose("TakeAPhoto","photo cancelled");
-			warp.disableEvents();
-			borderFrame.clear();
-			borderFrame.addWidget(cameraButton);
-			borderFrame.addWidget(exitButton);
 			state = TakingPhoto;
 		}
 		break;
 	}
+
 }
 
 void TakeAPhoto::update(){
@@ -270,6 +279,15 @@ void TakeAPhoto::update(){
 		photo = photoPixels;
 		pixelsCopied = false;
 		updateState(UpdatedImage);
+	}
+
+	if(state==EnteringName){
+		advertName = ofSystemTextBoxDialog("enter name of the advert");
+		if(advertName!=""){
+			updateState(YesPressed);
+		}else{
+			updateState(NoPressed);
+		}
 	}
 
 	geo->update();

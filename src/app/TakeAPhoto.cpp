@@ -95,7 +95,7 @@ void TakeAPhoto::setup(ofVideoGrabber & _video){
 	photo.setAnchorPercent(0.5,0.5);
 
 
-	ofAddListener(ofEvents.windowResized,this,&TakeAPhoto::windowResized);
+	ofAddListener(ofEvents().windowResized,this,&TakeAPhoto::windowResized);
 
 	geoPanel.setRectCompressed(ofRectangle(0,0,380,40));
 	geoPanel.setRectExpanded(ofRectangle(0,0,380,320));
@@ -142,7 +142,7 @@ void TakeAPhoto::updateState(Transition transition){
 		borderFrame.disableEvents();
 		state = Init;
 		geo->stop();
-		ofRemoveListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
+		ofRemoveListener(ofEvents().touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		bool yes;
 		ofNotifyEvent(exitE,yes,this);
 		return;
@@ -161,7 +161,7 @@ void TakeAPhoto::updateState(Transition transition){
 			geo->setSize(320,240);
 			geo->start();
 			geoPanel.compress();
-			ofAddListener(ofEvents.touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
+			ofAddListener(ofEvents().touchDoubleTap,this,&TakeAPhoto::touchDoubleTap);
 		}
 
 	case TakingPhoto:
@@ -247,6 +247,14 @@ void TakeAPhoto::updateState(Transition transition){
 }
 
 void TakeAPhoto::update(){
+	
+#ifdef TARGET_OSX
+	if ( ((ofVideoGrabber*)video)->isFrameNew() )
+	{
+		newFrame( video->getPixelsRef() );
+	}
+#endif
+	
 
 	if(videoWidth==0 || videoHeight==0){
 		ofResizeEventArgs window;
@@ -255,6 +263,8 @@ void TakeAPhoto::update(){
 		windowResized(window);
 	}
 	borderFrame.update();
+	
+	
 
 	if(state==PhotoTaken && pixelsCopied){
 		photo = photoPixels;

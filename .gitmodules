@@ -1,0 +1,6 @@
+[submodule "src/ofxHttpUtils"]
+	path = src/ofxHttpUtils
+	url = https://github.com/arturoc/ofxHttpUtils
+[submodule "src/ofxMovieExporter"]
+	path = src/ofxMovieExporter
+	url = git://github.com/damiannz/ofxMovieExporter.git

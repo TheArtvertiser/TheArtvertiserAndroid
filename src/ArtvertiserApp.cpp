@@ -16,23 +16,38 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU Lesser General Public License
- along with The Artvertiser for Android.  If not, see <http://www.gnu.org/licenses/>.
+ along with The Artvertis	er for Android.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ArtvertiserApp.h"
 #include "Artvert.h"
 #include "PersistanceEngine.h"
 #include "Label.h"
+#include "Binocular.h"
+#include "CommandlineParser.h"
 
-void ofSoundShutdown(){};
+//void ofSoundShutdown(){};
 
+/*int camW = 800;
+int camH = 600;
+int detectW = 640;
+int detectH = 480;*/
 int camW = 640;
 int camH = 480;
+int detectW = -1;
+int detectH = -1;
+//int detectW = 640;
+//int detectH = 480;
+
+//static const string SERVER_URL = "http://192.168.1.134:8888";
+static const string SERVER_URL = "http://localhost:8888";
+//static const string SERVER_URL = "http://192.168.1.4:8888";
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
 	//ofSleepMillis(5000);
 	ofSetVerticalSync(true);
+//	ofSetFrameRate( 30.0f );
 	//ofSetLogLevel(OF_LOG_VERBOSE);
 	ofBackground(66,51,51);
 	ofEnableAlphaBlending();
@@ -60,11 +75,21 @@ void ArtvertiserApp::setup(){
 	ofSetOrientation(OF_ORIENTATION_90_LEFT);
 #endif
 
-	grabber.setDeviceID(1);
+	grabber.setDeviceID(0);
 	grabber.setDesiredFrameRate(60);
 	grabber.setUseTexture(false);
 	//grabber.setPixelFormat(OF_PIXELS_MONO);
 	grabber.initGrabber(camW, camH);
+
+
+
+	
+
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
+	{
+		Binocular::get()->setup( grabber, /*bDebug*/ true );
+		ofHideCursor();
+	}
 
 	counter = 0;
 	allocated = true;
@@ -85,15 +110,22 @@ void ArtvertiserApp::setup(){
 	takeAPhoto.setGeo(geo);
 	takeAPhoto.setup(grabber);
 
-	onlineArtverts.setURL("http://192.168.1.134:8888");
+	onlineArtverts.setURL(SERVER_URL);
 	onlineArtverts.setIconCache(iconCache);
 	onlineArtverts.setComm(comm);
 	onlineArtverts.setup();
 
-	comm->setURL("http://192.168.1.134:8888");
+	comm->setURL(SERVER_URL);
 	comm->start();
 
-	state = Menu;
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
+	{
+		state = Tracking;
+	}
+	else
+	{
+		state = Menu;
+	}
 
 
 	circularPB.setRadius(30);
@@ -117,11 +149,34 @@ void ArtvertiserApp::setup(){
 
 	ofAddListener(onlineArtverts.downloadedE,this,&ArtvertiserApp::gotAnalysis);
 
+	if ( CommandlineParser::get()->isRunningOnBinoculars() )
+	{
+		ofAddListener( Binocular::get()->artvertSelectedEvent, this, &ArtvertiserApp::artvertSelectedBinoculars );
+	}
+
+	
 	ofSetLogLevel(OF_LOG_VERBOSE);
 }
 
 //--------------------------------------------------------------
 void ArtvertiserApp::update(){
+	static enum State prev_state = state;
+   if ( prev_state != state )
+   {
+	   string state_string = "unknown";
+	   if ( state == Menu )
+		   state_string = "Menu";
+	   else if ( state == Photo )
+		   state_string = "Photo";
+	   else if ( state == OnlineList )
+		   state_string = "OnlineList";
+	   else if ( state == Info )
+		   state_string = "Info";
+	   else if ( state == Tracking )
+		   state_string = "Tracking";
+	   ofLogVerbose("ArtvertiserApp", "state changed: now "+ state_string );
+	   prev_state = state;
+   }	   
 	switch(state){
 	case Menu:
 		if(refreshMenu){
@@ -148,7 +203,16 @@ void ArtvertiserApp::update(){
 			refreshArtvert = false;
 		}
 		if(artvertiser.getState()!=Detector::Initializing){
+			
 			grabber.update();
+#ifdef TARGET_OSX
+			if ( grabber.isFrameNew() )
+			{
+				artvertiser.newFrame( grabber.getPixelsRef() );
+				Binocular::get()->gotFrame( grabber.getPixelsRef() );
+			}
+#endif
+			
 		}else{
 			circularPB.update();
 		}
@@ -181,6 +245,8 @@ void ArtvertiserApp::draw(){
 			w = float(camW)/float(camH)*float(h);
 			x = (ofGetWidth() - w)/2;
 			scale = float(w)/float(camW);
+			if ( detectW != -1 )
+				scale *= float(camW)/float(detectW);
 			grabber.draw(x,0,w,h);
 		}else{
 			circularPB.draw();
@@ -193,20 +259,23 @@ void ArtvertiserApp::draw(){
 			subs_img.draw(0,0);
 			ofPopMatrix();
 		}
-		ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
-		ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
+		if ( !CommandlineParser::get()->isRunningOnBinoculars() )
+		{
+			ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate(), 2), x+20, 20);
+			ofDrawBitmapString("detect fps: " + ofToString(artvertiser.getFps()), x+20, 40);
 
-		if(artvertiser.getState()==Detector::Initializing){
-			ofDrawBitmapString("Initializing", x+20, 60);
-		}else if(artvertiser.isDetected()){
-			ofDrawBitmapString("Detected", x+20, 60);
-		}else if(artvertiser.isTracked()){
-			ofDrawBitmapString("Tracked", x+20, 60);
-		}else{
-			ofDrawBitmapString("NotDetected", x+20, 60);
+			if(artvertiser.getState()==Detector::Initializing){
+				ofDrawBitmapString("Initializing", x+20, 60);
+			}else if(artvertiser.isDetected()){
+				ofDrawBitmapString("Detected", x+20, 60);
+			}else if(artvertiser.isTracked()){
+				ofDrawBitmapString("Tracked", x+20, 60);
+			}else{
+				ofDrawBitmapString("NotDetected", x+20, 60);
+			}
+
+			if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
 		}
-
-		if(!allocated) ofDrawBitmapString("warning: not allocated", x+20, 80);
 		break;
 	}
 }
@@ -214,6 +283,8 @@ void ArtvertiserApp::draw(){
 
 //--------------------------------------------------------------
 void ArtvertiserApp::keyPressed  (int key){
+	if ( key == OF_KEY_BACKSPACE )
+		backPressed();
 }
 
 //--------------------------------------------------------------
@@ -300,9 +371,11 @@ void ArtvertiserApp::artvertSelected(ofFile & artvertimg){
 	Artvert & artvert = artvertInfo.getCurrentArtvert();
 
 	if(artvert.hasAlias()){
-		artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad);
+		artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad, false, detectW, detectH );
+		ofLogVerbose("ArtvertiserApp", "artvert.hasAlias()");
 	}else{
-		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad);
+		ofLogVerbose("ArtvertiserApp", "doesn't: artvert.hasAlias()");
+		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad, false, detectW, detectH );
 	}
 }
 
@@ -311,6 +384,30 @@ void ArtvertiserApp::advertSelected(Artvert & artvert){
 	state = Info;
 	artvertInfo.show(artvert);
 	menu.disableEvents();
+}
+
+void ArtvertiserApp::artvertSelectedBinoculars(Binocular::ArtvertSelectedEventInfo &info)
+{
+	subs_img.setUseTexture(false);
+	subs_img.loadImage( info.selectedArtvert );
+	if ( !subs_img.bAllocated()) allocated = false;
+	refreshArtvert = true;
+	
+	imgQuad[0].set(0,0);
+	imgQuad[1].set(subs_img.getWidth(),0);
+	imgQuad[2].set(subs_img.getWidth(),subs_img.getHeight());
+	imgQuad[3].set(0,subs_img.getHeight());
+	
+	state = Tracking;
+	Artvert & artvert = info.selectedAdvert;
+	if ( artvert.hasAlias() )
+	{
+		artvertiser.setup(artvert.getAlias().getModel().getAbsolutePath(),grabber,imgQuad, false, detectW, detectH );
+		ofLogVerbose("ArtvertiserApp", "artvert.hasAlias()");
+	}else{
+		ofLogVerbose("ArtvertiserApp", "doesn't: artvert.hasAlias()");
+		artvertiser.setup(artvert.getModel().getAbsolutePath(),grabber,imgQuad, false, detectW, detectH );
+	}
 }
 
 //--------------------------------------------------------------

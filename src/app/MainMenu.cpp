@@ -21,6 +21,7 @@
 
 #include "MainMenu.h"
 #include "ofAppRunner.h"
+#include "PersistanceEngine.h"
 
 MainMenu::MainMenu()
 :circularPB(15)
@@ -29,7 +30,7 @@ MainMenu::MainMenu()
 }
 
 void MainMenu::setup(){
-	ofAddListener(ofEvents.windowResized,this,&MainMenu::windowResized);
+	ofAddListener(ofEvents().windowResized,this,&MainMenu::windowResized);
 
 	ofImage cameraIcon;
 	cameraIcon.loadImage("icons/camera.png");
@@ -77,6 +78,7 @@ void MainMenu::refresh(){
 	grid.clear();
 	readyCache.resize(artverts.size());
 	for(int i=0; i<(int)artverts.size(); ++i){
+		
 		ofPtr<gui::Button> button(new gui::Button);
 		grid.addWidget(button);
 		ofPtr<ofImage> resizedImg = iconCache->getResource(artverts[i].getCompressedImage().getAbsolutePath()+"Resized");
@@ -101,6 +103,7 @@ void MainMenu::refresh(){
 		}
 		ofAddListener(button->pressedE,this,&MainMenu::snapshotPressed);
 	}
+	PersistanceEngine::save();
 }
 
 void MainMenu::update(){

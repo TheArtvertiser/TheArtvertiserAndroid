@@ -18,13 +18,13 @@ USER_CFLAGS += $(addprefix -I, $(shell find ../TheArtvertiserCommon \( -name .gi
 # for example libraries like:
 # USER_LD_FLAGS = libs/libawesomelib.a
 
-USER_LD_FLAGS =
+USER_LD_FLAGS = 
 
 
 # use this to add system libraries for example:
 # USER_LIBS = -lpango
 
-USER_LIBS =
+USER_LIBS = -lavcodec -lavformat -lavutil -lswscale
 
 
 # change this to add different compiler optimizations to your project
@@ -38,9 +38,9 @@ ANDROID_COMPILER_OPTIMIZATION = -Os -g1
 # useful if you need to share a folder with code between 2 apps. The makefile will search recursively
 # you can only set 1 path here
 
-USER_SOURCE_DIR = ../artvertiserCommon
+USER_SOURCE_DIR = ../TheArtvertiserCommon
 
 # you shouldn't need to change this for usual OF apps, it allows to exclude code from some directories
 # useful if you have some code for reference in the project folder but don't want it to be compiled
 
-EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj,src/ofxHttpUtils/example,.git"
+EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj,src/ofxHttpUtils/example,.git,src/ofxMovieExporter/movieExporterExample"

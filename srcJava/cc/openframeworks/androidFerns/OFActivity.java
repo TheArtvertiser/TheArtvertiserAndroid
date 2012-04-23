@@ -1,4 +1,4 @@
-package cc.openframeworks.androidFerns;
+package cc.openframeworks.TheArtvertiserAndroid;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -69,7 +69,7 @@ public class OFActivity extends Activity{
     	// This passes the menu option string to OF
     	// you can add additional behavior from java modifying this method
     	// but keep the call to OFAndroid so OF is notified of menu events
-    	if(OFAndroid.menuItemSelected(item)){
+    	if(OFAndroid.menuItemSelected(item.getItemId())){
     		
     		return true;
     	}

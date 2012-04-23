@@ -40,7 +40,8 @@ OnlineArtverts::OnlineArtverts(string url)
 	ofRegisterURLNotification(this);
 	circularPB.setColor(ofColor(190,190,190));
 	circularPB.setPosition(ofPoint(ofGetWidth()*0.5,ofGetHeight()*0.5));
-	ofAddListener(ofEvents.windowResized,this,&OnlineArtverts::windowResized);
+	ofAddListener(ofEvents()
+				  .windowResized,this,&OnlineArtverts::windowResized);
 
 	ofImage cameraIcon;
 	cameraIcon.loadImage("icons/camera.png");
@@ -49,7 +50,7 @@ OnlineArtverts::OnlineArtverts(string url)
 	grid.setSpacing(20,20);
 	grid.setRectangle(ofRectangle(20,20,ofGetWidth(),ofGetHeight()));
 
-	listTTF = "fonts/FreeSans.ttf";
+	listTTF = "fonts/Delicious-Roman.otf";
 	listTTFSize = 14;
 }
 
@@ -71,8 +72,8 @@ void OnlineArtverts::setComm(ofPtr<Comm> _comm){
 
 void OnlineArtverts::setup(){
 	allDownloaded.setFont(iconCache->getFont(listTTF,30));
-	allDownloaded.setPosition({30,30});
-	allDownloaded.setColor({255,255,255});
+	allDownloaded.setPosition(ofPoint(30,30));
+	allDownloaded.setColor(ofColor(255,255,255));
 }
 
 void OnlineArtverts::start(){
@@ -136,7 +137,10 @@ void OnlineArtverts::urlResponse(ofHttpResponse & response){
 		string country;
 		while(!response.data.isLastLine()){
 			country=response.data.getNextLine();
-			if(country!=""){
+			
+			/*if ( country=="" )
+				country = "unknown country";
+			if(country!="")*/{
 				ofLogVerbose("OnlineArtverts",country);
 				ofPtr<gui::Button> button = ofPtr<gui::Button>(new gui::Button(country,ofColor(255,255,255,255)));
 				button->setFont(iconCache->getFont(listTTF,listTTFSize));
@@ -151,6 +155,8 @@ void OnlineArtverts::urlResponse(ofHttpResponse & response){
 		list.clear();
 		string city;
 		while(!response.data.isLastLine()){
+			if ( city == "" )
+				city = "unknown city";
 			city=response.data.getNextLine();
 			if(city!=""){
 				ofLogVerbose("OnlineArtverts",city);
@@ -168,7 +174,9 @@ void OnlineArtverts::urlResponse(ofHttpResponse & response){
 		string road;
 		while(!response.data.isLastLine()){
 			road=response.data.getNextLine();
-			if(road!=""){
+/*			if ( road == "" )
+				road = "unknown road";
+			if(road!="")*/{
 				ofLogVerbose("OnlineArtverts",road);
 				ofPtr<gui::Button> button = ofPtr<gui::Button>(new gui::Button(road,ofColor(255,255,255,255)));
 				button->setFont(iconCache->getFont(listTTF,listTTFSize));
@@ -186,6 +194,8 @@ void OnlineArtverts::urlResponse(ofHttpResponse & response){
 		string artvertStr;
 		while(!response.data.isLastLine()){
 			artvertStr=response.data.getNextLine();
+			if( artvertStr == "" )
+				artvertStr= "blah";
 			if(artvertStr!=""){
 				ofLogVerbose("OnlineArtverts",artvertStr);
 				Artvert artvert(artvertStr);

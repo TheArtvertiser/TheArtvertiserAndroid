@@ -30,7 +30,7 @@ USER_LIBS = -lavcodec -lavformat -lavutil -lswscale
 
 # change this to add different compiler optimizations to your project
 
-LINUX_COMPILER_OPTIMIZATION = -march=native -mtune=native -Os
+USER_COMPILER_OPTIMIZATION = -march=native -mtune=native -Os
 
 ANDROID_COMPILER_OPTIMIZATION = -Os -g1
 

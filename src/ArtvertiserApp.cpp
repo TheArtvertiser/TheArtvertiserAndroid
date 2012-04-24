@@ -45,6 +45,7 @@ static const string SERVER_URL = "http://localhost:8888";
 
 //--------------------------------------------------------------
 void ArtvertiserApp::setup(){
+
 	//ofSleepMillis(5000);
 	ofSetVerticalSync(true);
 //	ofSetFrameRate( 30.0f );
@@ -52,7 +53,6 @@ void ArtvertiserApp::setup(){
 	ofBackground(66,51,51);
 	ofEnableAlphaBlending();
 
-	ofSetLogLevel("ArtvertiserApp",OF_LOG_VERBOSE);
 	vector<Artvert> artverts = Artvert::listAll();
 	ofLogVerbose("ArtvertiserApp","checking artverts integrity");
 	for(int i=0; i<(int)artverts.size(); i++){
@@ -155,7 +155,7 @@ void ArtvertiserApp::setup(){
 	}
 
 	
-	ofSetLogLevel(OF_LOG_VERBOSE);
+	ofSetLogLevel(OF_LOG_SILENT);
 }
 
 //--------------------------------------------------------------

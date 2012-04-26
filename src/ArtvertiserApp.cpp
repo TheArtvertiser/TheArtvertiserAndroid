@@ -110,6 +110,16 @@ void ArtvertiserApp::setup(){
 	takeAPhoto.setGeo(geo);
 	takeAPhoto.setup(grabber);
 
+
+#ifdef TARGET_ANDROID
+	ofxAndroidVideoGrabber * androidGraber = dynamic_cast<ofxAndroidVideoGrabber*>(grabber.getGrabber().get());
+	ofAddListener(androidGraber->newFrameE,&takeAPhoto,&TakeAPhoto::newFrame);
+#elif defined (TARGET_LINUX)
+	ofGstVideoGrabber * linuxGrabber = dynamic_cast<ofGstVideoGrabber*>(grabber.getGrabber().get());
+	ofGstVideoUtils * videoUtils = linuxGrabber->getGstVideoUtils();
+	ofAddListener(videoUtils->bufferEvent,&takeAPhoto,&TakeAPhoto::newFrame);
+#endif
+
 	onlineArtverts.setURL(SERVER_URL);
 	onlineArtverts.setIconCache(iconCache);
 	onlineArtverts.setComm(comm);
